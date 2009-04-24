@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Taffy DB Speed Test</title>
+		<script src="../taffy.js"></script>
+
+	</head>
+	<body>
+		<div id="testresults"></div>
+		
+	</body>
+	<script>
+		// Create Test Conditions
+		var size = 1000;
+		var loops = 5;
+		
+		// Create a time array
+		var testtime = [];
+		
+		for(var x = 0;x<loops;x++)
+		{
+		// Create TAFFY and fill it with stuff
+		var start = (new Date()).getTime();
+		var testTaffy = new TAFFY([]);
+		for(var a = 0;a<size;a++)
+		{
+			testTaffy.insert({id:"ID-"+a,value:"VALUE-"+a,green:"green",num:10,key:a,collection:[1,2,3,"red"]})
+		}
+		var end = (new Date()).getTime();
+		testtime[testtime.length] = {name:"Create and Fill Taffy",start:start,end:end,diff:(end - start)}
+		
+		// Find Every Record
+		var start = (new Date()).getTime();
+		var total = testTaffy.find({green:"green"});
+		var end = (new Date()).getTime();
+		testtime[testtime.length] = {name:"Find Every Record [" + total.length + "]",start:start,end:end,diff:(end - start)}
+	
+		// Find Record 900
+		var start = (new Date()).getTime();
+		var total = testTaffy.find({id:"ID-900"});
+		var end = (new Date()).getTime();
+		testtime[testtime.length] = {name:"Find Record 900 [" + total.length + "]",start:start,end:end,diff:(end - start)}
+		
+		
+		// Sort by Value Desc
+		var start = (new Date()).getTime();
+		var total = testTaffy.orderBy({value:"desc"});
+		var end = (new Date()).getTime();
+		testtime[testtime.length] = {name:"Sort by Value Desc",start:start,end:end,diff:(end - start)}
+		
+		// Do a forEach Update
+		var start = (new Date()).getTime();
+		var total = testTaffy.forEach(function (r) {var curValue = r.value.split("-")[1];curValue = parseFloat(curValue);curValue++;r.value = "VALUE-"+curValue; return r});
+		var end = (new Date()).getTime();
+		testtime[testtime.length] = {name:"Do a forEach Update",start:start,end:end,diff:(end - start)}
+		
+		// Do 80% record remove via lookup
+		var start = (new Date()).getTime();
+		var total = testTaffy.remove({key:{lt:(size*0.9)},key:{gt:(size*0.1)}});
+		var end = (new Date()).getTime();
+		testtime[testtime.length] = {name:"Do 80% record remove via lookup",start:start,end:end,diff:(end - start)}
+		
+		}
+		
+		testtime = new TAFFY(testtime);
+		testtime.orderBy("name");
+		var d = document.getElementById("testresults");
+		d.innerHTML = "";
+		var avg = 0;
+		var startType = "";
+		testtime.forEach(function (testt) {
+			if (testt.name != startType)
+			{
+				if (avg > 0)
+				{
+					d.innerHTML = d.innerHTML + "<br>";
+					d.innerHTML = d.innerHTML + "Avg: " + (avg/loops) + " milliseconds";
+					d.innerHTML = d.innerHTML + "<br>";
+					d.innerHTML = d.innerHTML + "<br>";
+					avg = 0;
+				}
+				startType = testt.name;
+			}
+			d.innerHTML = d.innerHTML + "<br>";
+			d.innerHTML = d.innerHTML + testt.name + ", " + testt.diff + " milliseconds";
+			
+			avg = avg + testt.diff;
+		});
+		
+		d.innerHTML = d.innerHTML + "<br>";
+		d.innerHTML = d.innerHTML + "Avg: " + (avg/loops) + " milliseconds";
+		d.innerHTML = d.innerHTML + "<br>";
+		d.innerHTML = d.innerHTML + "<br>";
+		
+	</script>
+</html>
