@@ -4,7 +4,7 @@ Software License Agreement (BSD License)
 http://taffydb.com
 Copyright (c) 2008
 All rights reserved.
-Version 1.7.2
+Version 1.7.3
 
 
 Redistribution and use of this software in source and binary forms, with or without modification, are permitted provided that the following condition is met:
@@ -17,6 +17,9 @@ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR P
 SUMMARY:
 TAFFY takes a JavaScript object and returns a set of methods
 to search, modify, and manipulate that object.
+
+.get(),first(),last() - allow multiple objects
+gte,lte
 
 */
 
@@ -99,6 +102,8 @@ var TAFFY = function (obj) {
 									return ((s=="regex") ? (mtest.test(mvalue)) :
 									(s=="lt") ? (mvalue < mtest) :
 									(s=="gt") ? (mvalue > mtest) :
+									(s=="lte") ? (mvalue <= mtest) :
+									(s=="gte") ? (mvalue >= mtest) :
 									(s=="starts") ? (mvalue.indexOf(mtest) === 0) :
 									(s=="ends") ? (mvalue.substring((mvalue.length - mtest.length)) == mtest) :
 									(s=="like") ? (mvalue.indexOf(mtest) >= 0) :
@@ -782,7 +787,99 @@ var TAFFY = function (obj) {
         
         },
 		
+	// ****************************************
+    // *
+    // * Create public sum method
+    // * Purpose: Take a column name and a forIndex
+	// * and sum up the numeric total for every row.
+    // *
+    // ****************************************
+    sum : function (col,dex) {
+        var t = 0;
+        this.forEach(function (r) {
+			if(TAFFY.isNumeric(r[col])) {
+				t = t + r[col];
+			}
+			
+		},dex)
+        
+		return t;
+        },
 	
+	// ****************************************
+    // *
+    // * Create public max method
+    // * Purpose: Take a column name and a forIndex
+	// * and find the highest value in that column
+	// * over every row.
+    // *
+    // ****************************************
+    max : function (col,dex) {
+       	var t, f = 0;
+        this.forEach(function (r) {
+			if (f==1 && r[col] > t) {
+				t = r[col];
+			} else if (f==0) {
+				t=r[col];
+				f=1;
+			}		
+		},dex)
+        
+		return t;
+        },
+	
+	// ****************************************
+    // *
+    // * Create public min method
+    // * Purpose: Take a column name and a forIndex
+	// * and find the lowest value in that column
+	// * over every row.
+    // *
+    // ****************************************
+    min : function (col,dex) {
+       	var t, f = 0;
+        this.forEach(function (r) {
+			if (f==1 && r[col] < t) {
+				t = r[col];
+			} else if (f==0) {
+				t=r[col];
+				f=1;
+			}		
+		},dex)
+        
+		return t;
+        },
+	
+	// ****************************************
+    // *
+    // * Create public values method
+    // * Purpose: Take a column name and a forIndex
+	// * and find all the values for the rows returned.
+    // *
+    // ****************************************
+    values : function (col,dex) {
+      	var t = [];
+        this.forEach(function (r) {
+			t[t.length] = r[col];
+		},dex)
+		return t;
+        },
+	// ****************************************
+    // *
+    // * Create public uniqueValues method
+    // * Purpose: Take a column name and a forIndex
+	// * and find only the unique values for the rows returned.
+    // *
+    // ****************************************
+    uniqueValues : function (col,dex) {
+      	var t = TAFFY([]);
+        this.forEach(function (r) {
+			if (t.find({value:r[col]}).length == 0) {
+				t.insert({value:r[col]});	
+			}
+		},dex)
+		return t.values("value");
+        },
 	// ****************************************
     // *
     // * config variable object

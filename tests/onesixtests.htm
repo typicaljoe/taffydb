@@ -11,7 +11,7 @@
 		
 	</body>
 	<script>
-		var mystuff = TAFFY([{name:"Bob",age:16},
+		var mystuff = TAFFY([{name:"Bob",age:29},
 							 {name:"Dave",age:29},
 							 {name:"Walter",age:50},
 							 {name:"Jennifer",age:51}]);
@@ -26,6 +26,9 @@
 		tr.innerHTML = tr.innerHTML + "!GT 30 = " + mystuff.first({age:{"!gt":30}}).age + '<br>';
 		tr.innerHTML = tr.innerHTML + "LT 30 = " + mystuff.first({age:{"lt":30}}).age + '<br>';
 		tr.innerHTML = tr.innerHTML + "!LT 30 = " + mystuff.first({age:{"!lt":30}}).age + '<br>';
+		tr.innerHTML = tr.innerHTML + "GTE 29 = " + mystuff.first({age:{"gte":29}}).age + '<br>';
+		tr.innerHTML = tr.innerHTML + "LTE 29 = " + mystuff.first({age:{"lte":29}}).age + '<br>';
+		
 		tr.innerHTML = tr.innerHTML + "STARTS Bo = " + mystuff.first({name:{"starts":"Bo"}}).name + '<br>';
 		tr.innerHTML = tr.innerHTML + "!STARTS Bo = " + mystuff.first({name:{"!starts":"Bo"}}).name + '<br>';
 		tr.innerHTML = tr.innerHTML + "ENDS ve = " + mystuff.first({name:{"ends":"ve"}}).name + '<br>';
@@ -71,6 +74,15 @@
 		mystuff.forEach(function(n) {
 			tr.innerHTML = tr.innerHTML + "Apply Test: " + n.name + " IS " + n.speed + '<br>';
 		});
-		
+		tr.innerHTML = tr.innerHTML + "sum age: " + mystuff.sum("age") + "<br>";
+		tr.innerHTML = tr.innerHTML + "min age: " + mystuff.min("age") + "<br>";
+		tr.innerHTML = tr.innerHTML + "max age: " + mystuff.max("age") + "<br>";
+		tr.innerHTML = tr.innerHTML + "values of age: " + TAFFY.JSON.stringify(mystuff.values("age")) + "<br>";
+		tr.innerHTML = tr.innerHTML + "unique values of age: " + TAFFY.JSON.stringify(mystuff.uniqueValues("age")) + "<br>";
+		tr.innerHTML = tr.innerHTML + "men only sum age: " + mystuff.sum("age",{gender:"male"}) + "<br>";
+		tr.innerHTML = tr.innerHTML + "men only min age: " + mystuff.min("age",{gender:"male"}) + "<br>";
+		tr.innerHTML = tr.innerHTML + "men only max age: " + mystuff.max("age",{gender:"male"}) + "<br>";
+		tr.innerHTML = tr.innerHTML + "men only values of age: " + TAFFY.JSON.stringify(mystuff.values("age",{gender:"male"})) + "<br>";
+		tr.innerHTML = tr.innerHTML + "men only unique values of age: " + TAFFY.JSON.stringify(mystuff.uniqueValues("age",{gender:"male"})) + "<br>";
 	</script>
 </html>
