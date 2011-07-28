@@ -18,8 +18,6 @@ SUMMARY:
 TAFFY takes a JavaScript object and returns a set of methods
 to search, modify, and manipulate that object.
 
-.get(),first(),last() - allow multiple objects
-gte,lte
 
 */
 
