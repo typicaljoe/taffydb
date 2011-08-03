@@ -5,7 +5,7 @@ http://taffydb.com
 Copyright (c) 2008
 All rights reserved.
 Version 1.7.3
-
+// 2.0 in work
 
 Redistribution and use of this software in source and binary forms, with or without modification, are permitted provided that the following condition is met:
 
