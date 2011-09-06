@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.0", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.1", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -104,6 +104,31 @@ var TAFFY;
                 return f.apply(this, arguments);
             };
         }
+        
+        var isIndexable = function (f) {
+        	// Check to see if record ID
+        	 if (T.isString(f) && /[t][0-9]*[r][0-9]*/i.test(f)) {
+        	 	return true;
+        	 }
+        	 // Check to see if record
+        	 if (T.isObject(f) && f["___id"] && f["___s"]) {
+        	 	return true;
+        	 }
+        	 
+        	 // Check to see if array of indexes
+        	 if (T.isArray(f)) {
+        	 	var i = true;
+        	 	each(f,function (r) {
+        	 		if (!isIndexable(r)) {
+        	 			i = false;
+        	 			return TAFFY.EXIT;
+        	 		}
+        	 	});
+        	 	return i;
+        	 }
+        	 
+        	 return false;
+        }
 
         var returnFilter = function (f) {
                 // ****************************************
@@ -115,13 +140,13 @@ var TAFFY;
                 // ****************************************  
                 var nf = [];
                 if (T.isString(f) && /[t][0-9]*[r][0-9]*/i.test(f)) {
-                    // if the values is of type ___id set it as the filter test
-                    f = {
-                        "___id": f
-                    };
-                }
+        	 		f = {
+        	 			"___id" : f
+        	 		}
+        	 	}
                 if (T.isArray(f)) {
                     // if we are working with an array
+                   
                     each(f, function (r) {
                         // loop the array and return a filter func for each value
                         nf.push(returnFilter(r));
@@ -143,13 +168,12 @@ var TAFFY;
                 }
                 // if we are dealing with an Object
                 if (T.isObject(f)) {
-                    // Check to see if the object is a valid record and, if so, set the ID for lookup
-                    if (f["___id"] && f["___s"]) {
-                        f = {
-                            "___id": f["___id"]
-                        };
-                    };
-
+					 if (T.isObject(f) && f["___id"] && f["___s"]) {
+        	 			f = {
+        	 			"___id" : f["___id"]
+        	 			}
+        	 		 }
+					
                     // Loop over each value on the object to prep match type and match value
                     eachin(f, function (v, i) {
 
@@ -245,11 +269,18 @@ var TAFFY;
                     var f = function () {
                             var that = this;
                             var match = true;
-                            each(nf, function (f) {
+                            // faster if less than  4 functions
+                            match = (nf.length == 1 && !nf[0].apply(that)) ? false : 
+                            	    (nf.length == 2 && (!nf[0].apply(that) || !nf[1].apply(that))) ? false :
+                            	    (nf.length == 3 && (!nf[0].apply(that) || !nf[1].apply(that) || !nf[2].apply(that))) ? false :
+                            	    (nf.length == 4 && (!nf[0].apply(that) || !nf[1].apply(that) || !nf[2].apply(that) || !nf[3].apply(that))) ? false : true;
+                            if (nf.length > 4) {
+                             each(nf, function (f) {
                                 if (!runFilters(that, f)) {
                                     match = false;
                                 }
                             });
+                            };
                             return match;
                         };
                     return f;
@@ -268,13 +299,16 @@ var TAFFY;
                 // * Returns: the array sorted
                 // * Purpose: Accept filters such as "[col], [col2]" or "[col] desc" and sort on those columns
                 // **************************************** 
+			
                 var sortFunc = function (a, b) {
                         // function to pass to the native array.sort to sort an array
                         var r = 0;
+
                         T.each(o, function (sd) {
                             // loop over the sort instructions
                             // get the column name
                             var o = sd.split(" ");
+                            var col = o[0];
 
                             // get the direction
                             var dir = (o.length === 1) ? "logical" : o[1];
@@ -282,8 +316,8 @@ var TAFFY;
 
                             if (dir === 'logical') {
                                 // if dir is logical than grab the charnum arrays for the two values we are looking at
-                                var c = numcharsplit(a[o[0]]),
-                                    d = numcharsplit(b[o[0]]);
+                                var c = numcharsplit(a[col]),
+                                    d = numcharsplit(b[col]);
                                 // loop over the charnumarrays until one value is higher than the other
                                 T.each((c.length <= d.length) ? c : d, function (x, i) {
                                     if (c[i] < d[i]) {
@@ -297,8 +331,8 @@ var TAFFY;
                                 })
                             } else if (dir === 'logicaldesc') {
                                 // if logicaldesc than grab the charnum arrays for the two values we are looking at
-                                var c = numcharsplit(a[o[0]]),
-                                    d = numcharsplit(b[o[0]]);
+                                var c = numcharsplit(a[col]),
+                                    d = numcharsplit(b[col]);
                                 // loop over the charnumarrays until one value is lower than the other
                                 T.each((c.length <= d.length) ? c : d, function (x, i) {
                                     if (c[i] > d[i]) {
@@ -309,23 +343,23 @@ var TAFFY;
                                         return TAFFY.EXIT
                                     }
                                 })
-                            } else if (dir === 'asec' && a[o[0]] < b[o[0]]) {
+                            } else if (dir === 'asec' && a[col] < b[col]) {
                                 // if asec (default) check to see which is higher
                                 r = -1;
                                 return T.EXIT;
-                            } else if (dir === 'asec' && a[o[0]] > b[o[0]]) {
+                            } else if (dir === 'asec' && a[col] > b[col]) {
                                 // if asec (default) check to see which is higher
                                 r = 1;
                                 return T.EXIT;
-                            } else if (dir === 'desc' && a[o[0]] > b[o[0]]) {
+                            } else if (dir === 'desc' && a[col] > b[col]) {
                                 // if desc check to see which is lower
                                 r = -1;
                                 return T.EXIT;
 
-                            } else if (dir === 'desc' && a[o[0]] < b[o[0]]) {
+                            } else if (dir === 'desc' && a[col] < b[col]) {
                                 // if desc check to see which is lower
                                 r = 1;
-                                return T.EXIT;
+                               return T.EXIT;
 
                             }
                             // if r is still 0 and we are doing a logical sort than look to see if one array is longer than the other
@@ -424,12 +458,13 @@ var TAFFY;
         // *
         // * Runs a query
         // **************************************** 
+        
+        
         var run = function () {
                 this.context({
                     results: this.getDBI().query(this.context())
                 });
             }
-
 
         API.extend("filter", function () {
             // ****************************************
@@ -447,6 +482,7 @@ var TAFFY;
             // Hadnle passing of ___ID or an record on lookup.
             each(arguments, function (f) {
                nc.q.push(returnFilter(f));
+               nc.filterRaw.push(f);
             });
 			
             return this.getroot(nc);
@@ -494,6 +530,30 @@ var TAFFY;
              return this.getroot(nc);
         });
         
+        API.extend("start", function (n) {
+            // ****************************************
+            // *
+            // * Purpose: takes a limit number to limit the number of rows returned by a query. Will update the results
+            // * of a query
+            // **************************************** 
+            var nc = TAFFY.mergeObj(this.context(),{});
+            nc.start = n;
+
+            if (nc.run && nc.sort && !nc.limit) {
+                var limitedresults = [];
+                each(nc.results, function (i, x) {
+                    if ((x + 1) > n) {
+                        limitedresults.push(i);
+                    }
+                });
+               nc.results = limitedresults;
+            } else {
+            	nc = TAFFY.mergeObj(this.context(),{run:null,start:n});
+            }
+            
+             return this.getroot(nc);
+        });
+
 		API.extend("update", function (o,runEvent) {
             // ****************************************
             // *
@@ -521,9 +581,11 @@ var TAFFY;
             // * Purpose: removes records from the DB via the remove and removeCommit DBI methods
             // **************************************** 
             var that = this;
+            var c = 0;
             run.call(this);
             each(this.context().results,function (r) {
                 that.getDBI().remove(r.___id);
+                c++;
             });
             if (this.context().results.length) {
                 this.context({
@@ -531,7 +593,8 @@ var TAFFY;
                 });
                 that.getDBI().removeCommit(runEvent);
             }
-            return this.context().results.length;
+            
+            return c;
         });
        
 
@@ -545,6 +608,23 @@ var TAFFY;
             return this.context().results.length;
         });
 
+        API.extend("callback", function (f) {
+            // ****************************************
+            // *
+            // * Returns null;
+            // * Runs a function on return of run.call
+            // **************************************** 
+            if (f) {
+            	var that = this;
+            	setTimeout(function () {
+            		run.call(that);
+            		f.call(that.getroot(that.context()));
+            	},0);
+            }
+            
+            
+            return null;
+        });
         
         API.extend("get", function () {
             // ****************************************
@@ -750,8 +830,8 @@ var TAFFY;
             	});
             return ra;
         });
-
-
+		
+		
         var runFilters = function (r, filter) {
                 // ****************************************
                 // *
@@ -759,6 +839,7 @@ var TAFFY;
                 // * Returns: true if the record matches, false otherwise
                 // **************************************** 
                 var match = true;
+              
 
                 each(filter, function (mf) {
                     switch (T.typeOf(mf)) {
@@ -771,15 +852,21 @@ var TAFFY;
                         break;
                     case "array":
                         // loop array and treat like a SQL or
-                        match = false;
-                        each(mf, function (f) {
-                            if (runFilters(r, f)) {
-                                match = true;
-                            }
-                        });
+                        match = (mf.length == 1) ? (runFilters(r, mf[0])) : 
+                                (mf.length == 2) ? (runFilters(r, mf[0]) || runFilters(r, mf[1])) :
+                                (mf.length == 3) ? (runFilters(r, mf[0]) || runFilters(r, mf[1]) || runFilters(r, mf[2])) :
+                                (mf.length == 4) ? (runFilters(r, mf[0]) || runFilters(r, mf[1]) || runFilters(r, mf[2]) || runFilters(r, mf[3])) : false;
+                        if (mf.length > 4) {
+                        	each(mf, function (f) {
+                            	if (runFilters(r, f)) {
+                                	match = true;
+                            	}
+                        	});
+                        }
                         break;
                     }
                 })
+                
                 return match;
             }
 
@@ -799,9 +886,13 @@ var TAFFY;
                         onInsert: false,
                         onUpdate: false,
                         onRemove: false,
-                        forcePropertyCase: "lower"
+                        forcePropertyCase: "lower",
+                        cacheSize: 100
                     },
-                    dm = new Date();
+                    dm = new Date(),
+                    CacheCount = 0,
+                    CacheClear = 0,
+                    Cache = {};
                 // ****************************************
                 // *
                 // * TOb = this database
@@ -814,7 +905,45 @@ var TAFFY;
                 // * settings.forcePropertyCase = on insert force the proprty case to be lower or upper. default lower, null/undefined will leave case as is
                 // * dm = the modify date of the database, used for query caching
                 // **************************************** 
+				
+				
+				var runIndexes = function (indexes) {
+                // ****************************************
+                // *
+                // * Takes: a collection of indexes
+                // * Returns: collection with records matching indexed filters
+                // **************************************** 
 
+ 				if (indexes.length == 0) {
+ 					return TOb;
+ 				}
+ 				var records = [];
+ 				var UniqueEnforce = false;
+ 				each(indexes,function (f) {
+ 					 // Check to see if record ID
+        			 if (T.isString(f) && /[t][0-9]*[r][0-9]*/i.test(f)) {
+        	 			records.push(TOb[ID[f]]);
+        	 			UniqueEnforce = true;
+        	 		}
+        	 		// Check to see if record
+        	 		if (T.isObject(f) && f["___id"] && f["___s"]) {
+        	 			records.push(TOb[ID[f["___id"]]]);
+        	 			UniqueEnforce = true;
+        	 		}
+        	 		 // Check to see if array of indexes
+		        	 if (T.isArray(f)) {
+		        	 	each(f,function (r) {
+		        	 		records.push(runIndexes(f));
+		        	 	});
+		        	 }
+ 				});
+                if (UniqueEnforce && records.length > 1) {
+                	records = [];
+                }
+                
+       		return records;
+       }
+				
 
                 var DBI = {
                     // ****************************************
@@ -829,6 +958,9 @@ var TAFFY;
                         // **************************************** 
                         if (nd) {
                             dm = nd;
+                            Cache = {};
+                            CacheCount = 0;
+                            CacheClear = 0;
                         }
                         return dm;
                     },
@@ -873,13 +1005,6 @@ var TAFFY;
                             }
                             DBI.dm(new Date());
                         });
-                        return TOb.length;
-                    },
-                    count: function () {
-                        // ****************************************
-                        // *
-                        // * Purpose: Return size of DB
-                        // **************************************** 
                         return TOb.length;
                     },
                     sort: function (o) {
@@ -950,31 +1075,63 @@ var TAFFY;
                         }
                         DBI.dm(new Date());
                     },
-                    each: function (m) {
-                        // ****************************************
-                        // *
-                        // * Takes: a method to run against all records in the DB
-                        // **************************************** 
-                        return each(TOb, m);
-                    },
                     query: function (context) {
                         // ****************************************
                         // *
                         // * Takes: the context object for a query and either returns a cache result or a new query result
                         // **************************************** 
                         var returnq;
-
+                        
+                        if (settings.cacheSize)
+                        {
+                        	var cid = "";
+                        	each(context.filterRaw,function (r) {
+                        		if (T.isFunction(r)) {
+                        			cid = "nocache";
+                        			return TAFFY.EXIT;
+                        		}
+                        	});
+                        	if (cid == "") {
+								cid = JSON.stringify(T.mergeObj(context,{q:false,run:false,sort:false}));
+							}
+						}
                         // Run a new query if there are no results or the run date has been cleared
-                        if (!context.results || !context.run) {
+                        if (!context.results || !context.run || (context.run && DBI.dm() > context.run)) {
                             var results = [];
-                            each(TOb, function (r) {
-                                // Run filter to see if record matches query
-                                if (runFilters(r, context.q)) {
-                                    results.push(r);
-                                }
-                            });
 
-                            returnq = results;
+                            // check Cache
+                            
+			                if (settings.cacheSize && Cache[cid]) {
+
+			                	Cache[cid].i = CacheCount++;
+			                	return Cache[cid].results;
+			                } else {
+			                	// if no filter, return DB
+			                	if (context.q.length == 0 && context.index.length == 0) {
+			                		each(TOb, function (r) {
+			                			 results.push(r);
+			                		});
+			                		returnq = results;
+			                	} else {
+			                		// use indexes
+			                		
+			                		var indexed = runIndexes(context.index);
+									
+			                		// run filters
+			                		each(indexed, function (r) {
+                               	   		// Run filter to see if record matches query
+                               	 		if (context.q.length == 0 || runFilters(r, context.q)) {
+                                   		 results.push(r);
+                               	 		}
+                           		 		});
+
+                            		returnq = results;
+                           		}
+			                }
+            			    
+                            
+                            
+                            
                         } else {
                             // If query exists and run has not been cleared return the cache results
                             returnq = context.results;
@@ -986,18 +1143,48 @@ var TAFFY;
                         }
 
                         // If a limit on the number of results exists and it is less than the returned results, limit results
-                        if (context.limit && context.limit < returnq.length) {
-
+                        if (returnq.length && ((context.limit && context.limit < returnq.length) || context.start)) {
                             var limitq = [];
                             each(returnq, function (r, i) {
-                                if (i < context.limit) {
-                                    limitq.push(r);
-                                } else {
-                                    return TAFFY.EXIT;
+                                if (!context.start || (context.start && (i+1) >= context.start)) {
+                                	if (context.limit) {
+                                		var ni = (context.start) ? (i+1)-context.start : i;
+                                		if (ni < context.limit) {
+                                    		limitq.push(r);
+                                    	} else if (ni > context.limit) {
+                                   			return TAFFY.EXIT;
+                                   		}
+                                  } else {
+                                  	limitq.push(r);
+                                  }
                                 }
                             })
                             returnq = limitq;
 
+                        }
+                        
+                        // update cache
+                        if (settings.cacheSize && cid != 'nocache') {
+                        	CacheClear++;
+                        
+                        	setTimeout(function () {
+                        		if (CacheClear >= settings.cacheSize*2) {
+                        		CacheClear = 0;
+                        		var bCounter = CacheCount-settings.cacheSize;
+                        		var nc = {};
+                        		eachin(function (r,k) {
+                        			if (r.i >= bCounter) {
+                        				nc[k] = r;
+                        			}
+                        		})
+                        		Cache = nc;
+                        	}},0);
+                 
+                        	Cache[cid] = {
+                					i:CacheCount++,
+                					results: returnq
+                				}
+                		
                         }
                         return returnq;
 
@@ -1031,15 +1218,7 @@ var TAFFY;
                                 // * The context contains all the information to manage a query including filters, limits, and sorts
                                 // **************************************** 
                                 if (n) {
-                                    context = TAFFY.mergeObj(context, ("q" in n) ? TAFFY.mergeObj(n, {
-                                        run: null,
-                                        sort: null
-                                    }) : ("order" in n) ? TAFFY.mergeObj(n, {
-                                        sort: null
-                                    }) : ("limit" in n) ? TAFFY.mergeObj(n, {
-                                        run: (n.limit < context.limit) ? context.run : null,
-                                        sort: null
-                                    }) : ("results" in n) ? TAFFY.mergeObj(n, {
+                                    context = TAFFY.mergeObj(context, ("results" in n) ? TAFFY.mergeObj(n, {
                                         run: new Date(),
                                         sort: new Date()
                                     }) : n);
@@ -1051,7 +1230,10 @@ var TAFFY;
                         
                         var context = (this && this.q) ? this : {
                             limit: false,
+                            start: false,
                             q: [],
+                            filterRaw: [],
+                            index: [],
                             order: [],
                             results: false,
                             run: null,
@@ -1062,8 +1244,14 @@ var TAFFY;
                         // * Call the query method to setup a new query
                         // **************************************** 
                          each(arguments, function (f) {
-                			context.q.push(returnFilter(f));
-
+                      
+                         	if (isIndexable(f)) {
+    							
+                         		context.index.push(f);
+                         	} else {
+                				context.q.push(returnFilter(f));
+                			}
+							context.filterRaw.push(f);
            				 });
 
 
