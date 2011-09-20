@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.2", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.2.1", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -1625,17 +1625,17 @@ var TAFFY;
                                 return TAFFY.EXIT;
                             }
                         })
-                        return re;
                     } else if (T.isArray(var2)) {
                         each(var2, function (v, n) {
                             re = T.has(var1, var2[n]);
-                            if (re === true) {
+                            if (re) {
                                 return TAFFY.EXIT;
                             }
                         });
                     } else if (T.isString(var2) && !TAFFY.isUndefined(var1[var2])) {
                         return true;
                     }
+                    return re;
                     break;
                 case "array":
                     if (T.isObject(var2)) {
@@ -1645,7 +1645,6 @@ var TAFFY;
                                 return TAFFY.EXIT;
                             }
                         });
-                        return re;
                     } else if (T.isArray(var2)) {
                         each(var2, function (v2, i2) {
                             each(var1, function (v1, i1) {
@@ -1658,15 +1657,15 @@ var TAFFY;
                                 return TAFFY.EXIT;
                             }
                         });
-                        return re;
                     } else if (T.isString(var2) || T.isNumber(var2)) {
                         for (var n = 0; n < var1.length; n++) {
                             re = T.has(var1[n], var2);
-                            if (re === true) {
+                            if (re) {
                                 return true;
                             }
                         }
                     }
+                    return re;
                     break;
                 case "string":
                     if (T.isString(var2) && var2 === var1) {
