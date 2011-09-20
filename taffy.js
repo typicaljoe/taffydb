@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.1", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.2", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -38,7 +38,7 @@ var TAFFY;
                 }
             };
 
-        var each = function (a, f, u) {
+        var each = function (a, fun, u) {
                 // ****************************************
                 // *
                 // * Takes:
@@ -48,7 +48,6 @@ var TAFFY;
                 // * Purpose: Used to loop over arrays
                 // *
                 // ****************************************  
-                for (var fun, fx = 0, f = (T.isArray(f)) ? f : [f], fy = f.length; fx < fy, fun = f[fx]; fx++) {
                     for (var r, i, x = 0, a = (T.isArray(a)) ? a : [a], y = a.length; x < y; x++) {
                         var i = a[x];
                         if (!T.isUndefined(i) || (u || false)) {
@@ -58,14 +57,11 @@ var TAFFY;
                             }
 
                         }
-                        if (r === T.EXIT) {
-                            break;
-                        }
                     }
-                }
+                
            };
 
-        var eachin = function (o, f) {
+        var eachin = function (o, fun) {
                 // ****************************************
                 // *
                 // * Takes:
@@ -74,7 +70,6 @@ var TAFFY;
                 // * Purpose: Used to loop over objects
                 // *
                 // ****************************************  
-                for (var fun, fx = 0, f = (T.isArray(f)) ? f : [f], fy = f.length; fx < fy, fun = f[fx]; fx++) {
                     var x = 0,
                         r;
 
@@ -83,14 +78,10 @@ var TAFFY;
                             r = fun(o[i], i, x++);
                         }
                         if (r === T.EXIT) {
-                            break;
-                        }
+                        	break;
+                    	}
+                    }
 
-                    }
-                    if (r === T.EXIT) {
-                        break;
-                    }
-                }
            };
 
         API["extend"] = function (m, f) {
@@ -208,11 +199,11 @@ var TAFFY;
                                 var matchFunc = function () {
 
                                     // get the value from the record
-                                    var mvalue = this[i]
+                                    var mvalue = this[i];
+                                    
 									 if ((s.indexOf("!") === 0)) {
                                     // if the filter name starts with ! as in "!is" then reverse the match logic and remove the !
                                     	su = false;
-                                    	f = true;
                                     	s = s.substring(1, s.length);
                                 	}
 								
@@ -235,8 +226,9 @@ var TAFFY;
                                             (s === "hasall") ? (T.hasAll(mvalue, mtest)) : 
                                             (!TAFFY.isUndefined(mvalue[s]) && !TAFFY.isObject(mtest) && !TAFFY.isArray(mtest)) ? (mtest === mvalue[s]) :
                                             (T[s] && T.isFunction(T[s])) ? T[s](mvalue, mtest) :
-                                            (su === f) ? su : f)
-									
+                                            (su === f));
+                                    r = (r && !su) ? false : (!r && !su) ? true : r; 
+
                                     return r;
                                 };
                                 c.push(matchFunc)
@@ -886,7 +878,7 @@ var TAFFY;
                         onInsert: false,
                         onUpdate: false,
                         onRemove: false,
-                        forcePropertyCase: "lower",
+                        forcePropertyCase: null,
                         cacheSize: 100
                     },
                     dm = new Date(),
@@ -1026,15 +1018,18 @@ var TAFFY;
                         // * Takes: the ID of record being changed and the changes
                         // * Purpose: Update a record and change some or all values, call the on update method
                         // ****************************************
+
                         var nc = {};
                         if (settings.forcePropertyCase) {
                         	eachin(changes,function (v,p) {
                         		nc[(settings.forcePropertyCase === "lower") ? p.toLowerCase() : (settings.forcePropertyCase === "upper") ? p.toUpperCase() : p] = v;
                         	});
-                        }
-                        changes = nc;
+                        	 changes = nc;
+                        } 
+                        
                         var or = TOb[ID[id]];
                         var nr = T.mergeObj(or, changes);
+                      
                         var tc = {};
                         eachin(nr,function (v,i) {
                         	if (TAFFY.isUndefined(or[i]) || or[i] != v) {
@@ -1359,7 +1354,7 @@ var TAFFY;
          2010-11-17
          Public Domain.
          */
-        var JSON;
+        JSON;
         if (!JSON) {
             JSON = {};
         }
