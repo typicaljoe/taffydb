@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.2.1", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.2.2", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -1349,12 +1349,230 @@ var TAFFY;
         };
 
 
-		/*
+
+        // ****************************************
+        // *
+        // * Create public utility has method
+        // * Returns true if a complex object, array
+        // * or taffy collection contains the material
+        // * provided in the second argument
+        // * Purpose: Used to comare objects
+        // *
+        // ****************************************
+        TAFFY.has = function (var1, var2) {
+
+            var re = true;
+            if ((var1.TAFFY)) {
+                re = var1(var2);
+                if (re.length > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+            	
+                switch (T.typeOf(var1)) {
+                case "object":
+                    if (T.isObject(var2)) {
+                        eachin(var2, function (v, n) {
+                            if (re === true && !T.isUndefined(var1[n]) && var1.hasOwnProperty(n)) {
+                                re = T.has(var1[n], var2[n]);
+                            } else {
+                                re = false;
+                                return TAFFY.EXIT;
+                            }
+                        })
+                    } else if (T.isArray(var2)) {
+                        each(var2, function (v, n) {
+                            re = T.has(var1, var2[n]);
+                            if (re) {
+                                return TAFFY.EXIT;
+                            }
+                        });
+                    } else if (T.isString(var2)) {
+	                    if (!TAFFY.isUndefined(var1[var2])) {
+    	                    return true;
+        	            } else {
+            	        	return false;
+                	    }
+                    }
+                    return re;
+                    break;
+                case "array":
+                    if (T.isObject(var2)) {
+                        each(var1, function (v, i) {
+                            re = T.has(var1[i], var2);
+                            if (re === true) {
+                                return TAFFY.EXIT;
+                            }
+                        });
+                    } else if (T.isArray(var2)) {
+                        each(var2, function (v2, i2) {
+                            each(var1, function (v1, i1) {
+                                re = T.has(var1[i1], var2[i2]);
+                                if (re === true) {
+                                    return TAFFY.EXIT;
+                                }
+                            });
+                            if (re === true) {
+                                return TAFFY.EXIT;
+                            }
+                        });
+                    } else if (T.isString(var2) || T.isNumber(var2)) {
+                        for (var n = 0; n < var1.length; n++) {
+                            re = T.has(var1[n], var2);
+                            if (re) {
+                                return true;
+                            }
+                        }
+                    }
+                    return re;
+                    break;
+                case "string":
+                    if (T.isString(var2) && var2 === var1) {
+                        return true;
+                    }
+                    break;
+                default:
+                    if (T.typeOf(var1) === T.typeOf(var2) && var1 === var2) {
+                        return true;
+                    }
+                    break;
+                }
+            }
+            return false;
+        };
+
+        // ****************************************
+        // *
+        // * Create public utility hasAll method
+        // * Returns true if a complex object, array
+        // * or taffy collection contains the material
+        // * provided in the call - for arrays it must
+        // * contain all the material in each array item
+        // * Purpose: Used to comare objects
+        // *
+        // ****************************************
+        TAFFY.hasAll = function (var1, var2) {
+
+            var T = TAFFY;
+            if (T.isArray(var2)) {
+                var ar = true;
+                each(var2, function (v) {
+                    ar = T.has(var1, v);
+                    if (ar === false) {
+                        return TAFFY.EXIT;
+                    }
+                });
+                return ar;
+            } else {
+                return T.has(var1, var2);
+            }
+        };
+
+
+        // ****************************************
+        // *
+        // * typeOf Fixed in JavaScript as public utility
+        // *
+        // ****************************************
+        TAFFY.typeOf = function (v) {
+            var s = typeof v;
+            if (s === 'object') {
+                if (v) {
+                    if (typeof v.length === 'number' && !(v.propertyIsEnumerable('length'))) {
+                        s = 'array';
+                    }
+                } else {
+                    s = 'null';
+                }
+            }
+            return s;
+        };
+
+        // ****************************************
+        // *
+        // * Create public utility getObjectKeys method
+        // * Returns an array of an objects keys
+        // * Purpose: Used to get the keys for an object
+        // *
+        // ****************************************   
+        TAFFY.getObjectKeys = function (ob) {
+            var kA = [];
+            eachin(ob, function (n) {
+                kA.push(n);
+            });
+            kA.sort();
+            return kA;
+        };
+
+        // ****************************************
+        // *
+        // * Create public utility isSameArray
+        // * Returns an array of an objects keys
+        // * Purpose: Used to get the keys for an object
+        // *
+        // ****************************************   
+        TAFFY.isSameArray = function (ar1, ar2) {
+            return (TAFFY.isArray(ar1) && TAFFY.isArray(ar2) && ar1.join(",") === ar2.join(",")) ? true : false;
+        };
+
+        // ****************************************
+        // *
+        // * Create public utility isSameObject method
+        // * Returns true if objects contain the same
+        // * material or false if they do not
+        // * Purpose: Used to comare objects
+        // *
+        // ****************************************   
+        TAFFY.isSameObject = function (ob1, ob2) {
+            var T = TAFFY,
+                rv = true;
+            if (T.isObject(ob1) && T.isObject(ob2)) {
+                if (T.isSameArray(T.getObjectKeys(ob1), T.getObjectKeys(ob2))) {
+                    eachin(ob1, function (v, n) {
+                        if ((T.isObject(ob1[n]) && T.isObject(ob2[n]) && T.isSameObject(ob1[n], ob2[n])) || (T.isArray(ob1[n]) && T.isArray(ob2[n]) && T.isSameArray(ob1[n], ob2[n])) || (ob1[n] === ob2[n])) {} else {
+                            rv = false;
+                            return TAFFY.EXIT;
+                        }
+                    });
+                } else {
+                    rv = false;
+                }
+            } else {
+                rv = false;
+            }
+            return rv;
+        };
+
+        // ****************************************
+        // *
+        // * Create public utility is[DataType] methods
+        // * Return true if obj is datatype, false otherwise
+        // * Purpose: Used to determine if arguments are of certain data type
+        // *
+        // ****************************************
+
+        (function (ts) {
+            for (var z = 0; z < ts.length; z++) {
+                (function (y) {
+                    TAFFY["is" + y] = function (c) {
+                        return (TAFFY.typeOf(c) === y.toLowerCase()) ? true : false;
+                    }
+                }(ts[z]))
+            }
+        }(["String", "Number", "Object", "Array", "Boolean", "Null", "Function", "Undefined"]));
+
+    }
+})()
+
+
+/*
          http://www.JSON.org/json2.js
          2010-11-17
          Public Domain.
          */
-        JSON;
+        var JSON;
         if (!JSON) {
             JSON = {};
         }
@@ -1592,215 +1810,3 @@ var TAFFY;
         // *
         // ****************************************       
 
-
-
-        // ****************************************
-        // *
-        // * Create public utility has method
-        // * Returns true if a complex object, array
-        // * or taffy collection contains the material
-        // * provided in the second argument
-        // * Purpose: Used to comare objects
-        // *
-        // ****************************************
-        TAFFY.has = function (var1, var2) {
-
-            var re = true;
-            if ((var1.TAFFY)) {
-                re = var1(var2);
-                if (re.length > 0) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                switch (T.typeOf(var1)) {
-                case "object":
-                    if (T.isObject(var2)) {
-                        eachin(var2, function (v, n) {
-                            if (re === true && !T.isUndefined(var1[n]) && var1.hasOwnProperty(n)) {
-                                re = T.has(var1[n], var2[n]);
-                            } else {
-                                re = false;
-                                return TAFFY.EXIT;
-                            }
-                        })
-                    } else if (T.isArray(var2)) {
-                        each(var2, function (v, n) {
-                            re = T.has(var1, var2[n]);
-                            if (re) {
-                                return TAFFY.EXIT;
-                            }
-                        });
-                    } else if (T.isString(var2) && !TAFFY.isUndefined(var1[var2])) {
-                        return true;
-                    }
-                    return re;
-                    break;
-                case "array":
-                    if (T.isObject(var2)) {
-                        each(var1, function (v, i) {
-                            re = T.has(var1[i], var2);
-                            if (re === true) {
-                                return TAFFY.EXIT;
-                            }
-                        });
-                    } else if (T.isArray(var2)) {
-                        each(var2, function (v2, i2) {
-                            each(var1, function (v1, i1) {
-                                re = T.has(var1[i1], var2[i2]);
-                                if (re === true) {
-                                    return TAFFY.EXIT;
-                                }
-                            });
-                            if (re === true) {
-                                return TAFFY.EXIT;
-                            }
-                        });
-                    } else if (T.isString(var2) || T.isNumber(var2)) {
-                        for (var n = 0; n < var1.length; n++) {
-                            re = T.has(var1[n], var2);
-                            if (re) {
-                                return true;
-                            }
-                        }
-                    }
-                    return re;
-                    break;
-                case "string":
-                    if (T.isString(var2) && var2 === var1) {
-                        return true;
-                    }
-                    break;
-                default:
-                    if (T.typeOf(var1) === T.typeOf(var2) && var1 === var2) {
-                        return true;
-                    }
-                    break;
-                }
-            }
-            return false;
-        };
-
-        // ****************************************
-        // *
-        // * Create public utility hasAll method
-        // * Returns true if a complex object, array
-        // * or taffy collection contains the material
-        // * provided in the call - for arrays it must
-        // * contain all the material in each array item
-        // * Purpose: Used to comare objects
-        // *
-        // ****************************************
-        TAFFY.hasAll = function (var1, var2) {
-
-            var T = TAFFY;
-            if (T.isArray(var2)) {
-                var ar = true;
-                each(var2, function (v) {
-                    ar = T.has(var1, v);
-                    if (ar === false) {
-                        return TAFFY.EXIT;
-                    }
-                });
-                return ar;
-            } else {
-                return T.has(var1, var2);
-            }
-        };
-
-
-        // ****************************************
-        // *
-        // * typeOf Fixed in JavaScript as public utility
-        // *
-        // ****************************************
-        TAFFY.typeOf = function (v) {
-            var s = typeof v;
-            if (s === 'object') {
-                if (v) {
-                    if (typeof v.length === 'number' && !(v.propertyIsEnumerable('length'))) {
-                        s = 'array';
-                    }
-                } else {
-                    s = 'null';
-                }
-            }
-            return s;
-        };
-
-        // ****************************************
-        // *
-        // * Create public utility getObjectKeys method
-        // * Returns an array of an objects keys
-        // * Purpose: Used to get the keys for an object
-        // *
-        // ****************************************   
-        TAFFY.getObjectKeys = function (ob) {
-            var kA = [];
-            eachin(ob, function (n) {
-                kA.push(n);
-            });
-            kA.sort();
-            return kA;
-        };
-
-        // ****************************************
-        // *
-        // * Create public utility isSameArray
-        // * Returns an array of an objects keys
-        // * Purpose: Used to get the keys for an object
-        // *
-        // ****************************************   
-        TAFFY.isSameArray = function (ar1, ar2) {
-            return (TAFFY.isArray(ar1) && TAFFY.isArray(ar2) && ar1.join(",") === ar2.join(",")) ? true : false;
-        };
-
-        // ****************************************
-        // *
-        // * Create public utility isSameObject method
-        // * Returns true if objects contain the same
-        // * material or false if they do not
-        // * Purpose: Used to comare objects
-        // *
-        // ****************************************   
-        TAFFY.isSameObject = function (ob1, ob2) {
-            var T = TAFFY,
-                rv = true;
-            if (T.isObject(ob1) && T.isObject(ob2)) {
-                if (T.isSameArray(T.getObjectKeys(ob1), T.getObjectKeys(ob2))) {
-                    eachin(ob1, function (v, n) {
-                        if ((T.isObject(ob1[n]) && T.isObject(ob2[n]) && T.isSameObject(ob1[n], ob2[n])) || (T.isArray(ob1[n]) && T.isArray(ob2[n]) && T.isSameArray(ob1[n], ob2[n])) || (ob1[n] === ob2[n])) {} else {
-                            rv = false;
-                            return TAFFY.EXIT;
-                        }
-                    });
-                } else {
-                    rv = false;
-                }
-            } else {
-                rv = false;
-            }
-            return rv;
-        };
-
-        // ****************************************
-        // *
-        // * Create public utility is[DataType] methods
-        // * Return true if obj is datatype, false otherwise
-        // * Purpose: Used to determine if arguments are of certain data type
-        // *
-        // ****************************************
-
-        (function (ts) {
-            for (var z = 0; z < ts.length; z++) {
-                (function (y) {
-                    TAFFY["is" + y] = function (c) {
-                        return (TAFFY.typeOf(c) === y.toLowerCase()) ? true : false;
-                    }
-                }(ts[z]))
-            }
-        }(["String", "Number", "Object", "Array", "Boolean", "Null", "Function", "Undefined"]));
-
-    }
-})()
