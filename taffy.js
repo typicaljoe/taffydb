@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.2.2", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.3", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -600,7 +600,7 @@ var TAFFY;
             return this.context().results.length;
         });
 
-        API.extend("callback", function (f) {
+        API.extend("callback", function (f,delay) {
             // ****************************************
             // *
             // * Returns null;
@@ -611,7 +611,7 @@ var TAFFY;
             	setTimeout(function () {
             		run.call(that);
             		f.call(that.getroot(that.context()));
-            	},0);
+            	},(delay) ? delay : 0);
             }
             
             
@@ -878,6 +878,8 @@ var TAFFY;
                         onInsert: false,
                         onUpdate: false,
                         onRemove: false,
+                        onChange: false,
+                        storageName: false,
                         forcePropertyCase: null,
                         cacheSize: 100
                     },
@@ -954,6 +956,16 @@ var TAFFY;
                             CacheCount = 0;
                             CacheClear = 0;
                         }
+                        if (settings.onChange) {
+                        	setTimeout(function () {
+                        		settings.onChange(TOb);
+                        	},0)
+                        }
+                        if (settings.storageName) {
+                        	setTimeout(function () {
+                        		localStorage.setItem('taffy_'+settings.storageName,JSON.stringify(TOb));
+                        	});
+                        }
                         return dm;
                     },
                     insert: function (i,runEvent) {
@@ -963,6 +975,7 @@ var TAFFY;
                         // * Purpose: merge the object with the template, add an ID, insert into DB, call insert event
                         // **************************************** 
                         var columns = [];
+                        var records = [];
                         each(JSONProtect(i), function (v, i) {
                             if (T.isArray(v) && i === 0) {
                                 each(v, function (av) {
@@ -988,6 +1001,7 @@ var TAFFY;
                             RC++;
                             v["___id"] = "T" + String(idpad + TC).slice(-6) + "R" + String(idpad + RC).slice(-6);
                             v["___s"] = true;
+                            records.push(v["___id"]);
                             v = T.mergeObj(settings.template, v);
                             TOb.push(v);
 
@@ -997,7 +1011,8 @@ var TAFFY;
                             }
                             DBI.dm(new Date());
                         });
-                        return TOb.length;
+                        
+                        return root(records);
                     },
                     sort: function (o) {
                         // ****************************************
@@ -1284,8 +1299,29 @@ var TAFFY;
                     }
                     return settings;
                 }
-
-
+				
+				// ****************************************
+                // *
+                // * These are the methods that can be accessed on off the root DB function. Example dbname.insert();
+                // **************************************** 
+                root.store = function (n) {
+                    // ****************************************
+                    // *
+                    // * Setup localstorage for this DB on a given name
+                    // * Pull data into the DB as needed
+                    // **************************************** 
+                    root.settings({storageName:n});
+                    var r = false;
+                    if (n) {
+                       var i = localStorage.getItem('taffy_'+n);
+                       if (i && i.length > 0) {
+                       	root.insert(i);
+                       	r = true;
+                       }
+					}
+                    return r;
+                }
+				
                 // ****************************************
                 // *
                 // * Return root on DB creation and start having fun
