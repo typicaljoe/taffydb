@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.3.1", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.3.2", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -1311,6 +1311,7 @@ var TAFFY;
                     // * Pull data into the DB as needed
                     // **************************************** 
                     var r = false;
+                    if (localStorage) {
                     if (n) {
                        var i = localStorage.getItem('taffy_'+n);
                        if (i && i.length > 0) {
@@ -1324,6 +1325,7 @@ var TAFFY;
                        }
 					}
 					root.settings({storageName:n});
+					};
                     return r;
                 }
 				
