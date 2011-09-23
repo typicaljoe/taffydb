@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.3", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.3.1", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -878,7 +878,7 @@ var TAFFY;
                         onInsert: false,
                         onUpdate: false,
                         onRemove: false,
-                        onChange: false,
+                        onDBChange: false,
                         storageName: false,
                         forcePropertyCase: null,
                         cacheSize: 100
@@ -956,9 +956,9 @@ var TAFFY;
                             CacheCount = 0;
                             CacheClear = 0;
                         }
-                        if (settings.onChange) {
+                        if (settings.onDBChange) {
                         	setTimeout(function () {
-                        		settings.onChange(TOb);
+                        		settings.onDBChange.call(TOb);
                         	},0)
                         }
                         if (settings.storageName) {
@@ -1310,15 +1310,20 @@ var TAFFY;
                     // * Setup localstorage for this DB on a given name
                     // * Pull data into the DB as needed
                     // **************************************** 
-                    root.settings({storageName:n});
                     var r = false;
                     if (n) {
                        var i = localStorage.getItem('taffy_'+n);
                        if (i && i.length > 0) {
-                       	root.insert(i);
-                       	r = true;
+                       		root.insert(i);
+                       		r = true;
+                       }
+                       if (TOb.length > 0) {
+                       	setTimeout(function () {
+                        	 localStorage.setItem('taffy_'+settings.storageName,JSON.stringify(TOb));
+                       	});
                        }
 					}
+					root.settings({storageName:n});
                     return r;
                 }
 				
