@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.3.2", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.3.3", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -48,6 +48,9 @@ var TAFFY;
                 // * Purpose: Used to loop over arrays
                 // *
                 // ****************************************  
+                    if (a.length == 1) {
+                    	fun(a[0],0);
+                    } else {
                     for (var r, i, x = 0, a = (T.isArray(a)) ? a : [a], y = a.length; x < y; x++) {
                         var i = a[x];
                         if (!T.isUndefined(i) || (u || false)) {
@@ -57,6 +60,7 @@ var TAFFY;
                             }
 
                         }
+                    }
                     }
                 
            };
@@ -874,7 +878,7 @@ var TAFFY;
                     ID = {},
                     RC = 1,
                     settings = {
-                        template: {},
+                        template: false,
                         onInsert: false,
                         onUpdate: false,
                         onRemove: false,
@@ -992,6 +996,7 @@ var TAFFY;
 
                             } else if (T.isObject(v) && settings.forcePropertyCase) {
                             	var o = {};
+                            	
                                 eachin(v, function (av, ai) {
                                     o[(settings.forcePropertyCase === "lower") ? ai.toLowerCase() : (settings.forcePropertyCase === "upper") ? ai.toUpperCase() : ai] = v[ai];
                                 });
@@ -1002,7 +1007,9 @@ var TAFFY;
                             v["___id"] = "T" + String(idpad + TC).slice(-6) + "R" + String(idpad + RC).slice(-6);
                             v["___s"] = true;
                             records.push(v["___id"]);
-                            v = T.mergeObj(settings.template, v);
+                            if (settings.template) {
+                            	v = T.mergeObj(settings.template, v);
+                            }
                             TOb.push(v);
 
                             ID[v["___id"]] = TOb.length - 1;
