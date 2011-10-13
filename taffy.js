@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.3.3", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.3.4", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -556,7 +556,7 @@ var TAFFY;
             // * Takes: a object and passes it off DBI update method for all matched records
             // **************************************** 
             var that = this;
-             run.call(this);
+            run.call(this);
             each(this.context().results,function (r) {
             	var c = o;
             	if (T.isFunction(c)) {
@@ -915,16 +915,17 @@ var TAFFY;
  				if (indexes.length == 0) {
  					return TOb;
  				}
+ 				
  				var records = [];
  				var UniqueEnforce = false;
  				each(indexes,function (f) {
  					 // Check to see if record ID
-        			 if (T.isString(f) && /[t][0-9]*[r][0-9]*/i.test(f)) {
+        			 if (T.isString(f) && /[t][0-9]*[r][0-9]*/i.test(f) && TOb[ID[f]]) {
         	 			records.push(TOb[ID[f]]);
         	 			UniqueEnforce = true;
         	 		}
         	 		// Check to see if record
-        	 		if (T.isObject(f) && f["___id"] && f["___s"]) {
+        	 		if (T.isObject(f) && f["___id"] && f["___s"] && TOb[ID[f["___id"]]]) {
         	 			records.push(TOb[ID[f["___id"]]]);
         	 			UniqueEnforce = true;
         	 		}
@@ -938,7 +939,7 @@ var TAFFY;
                 if (UniqueEnforce && records.length > 1) {
                 	records = [];
                 }
-                
+               
        		return records;
        }
 				
@@ -1030,7 +1031,7 @@ var TAFFY;
                         ID = {};
                         each(TOb, function (r, i) {
                             ID[r["___id"]] = i;
-                        })
+                        });
                         DBI.dm(new Date());
                         return true;
                     },
@@ -1077,19 +1078,21 @@ var TAFFY;
                         // *
                         // * 
                         // * Purpose: loop over all records and remove records with ___s = false, call onRemove event, clear ID
-                        // **************************************** 
-                        
+                        // ****************************************
                         for (var x = TOb.length - 1; x > -1; x--) {
 
                             if (!TOb[x].___s) {
                                 if (settings.onRemove && (runEvent || TAFFY.isUndefined(runEvent))) {
-                                	
                                     settings.onRemove.call(TOb[x]);
                                 }
                                 ID[TOb[x].___id] = undefined;
                                 TOb.splice(x, 1);
                             }
                         }
+                        ID = {};
+                        each(TOb, function (r, i) {
+                            ID[r["___id"]] = i;
+                        });
                         DBI.dm(new Date());
                     },
                     query: function (context) {
@@ -1133,7 +1136,6 @@ var TAFFY;
 			                		// use indexes
 			                		
 			                		var indexed = runIndexes(context.index);
-									
 			                		// run filters
 			                		each(indexed, function (r) {
                                	   		// Run filter to see if record matches query
