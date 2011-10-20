@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.3.5", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.3.6", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -109,13 +109,14 @@ var TAFFY;
         	 if (T.isObject(f) && f["___id"] && f["___s"]) {
         	 	return true;
         	 }
-        	 
+
         	 // Check to see if array of indexes
         	 if (T.isArray(f)) {
         	 	var i = true;
         	 	each(f,function (r) {
         	 		if (!isIndexable(r)) {
         	 			i = false;
+        	 			
         	 			return TAFFY.EXIT;
         	 		}
         	 	});
@@ -211,8 +212,7 @@ var TAFFY;
                                     	s = s.substring(1, s.length);
                                 	}
 								
-									
-                                    // get the match results based on the s/match type
+									 // get the match results based on the s/match type
                                     var r = ((s === "regex") ? (mtest.test(mvalue)) : 
                                             (s === "lt") ? (mvalue < mtest) : 
                                             (s === "gt") ? (mvalue > mtest) : 
@@ -228,11 +228,12 @@ var TAFFY;
                                             (s === "isnocase") ? (mvalue.toLowerCase() === mtest.toLowerCase()) : 
                                             (s === "has") ? (T.has(mvalue, mtest)) : 
                                             (s === "hasall") ? (T.hasAll(mvalue, mtest)) : 
-                                            (!TAFFY.isUndefined(mvalue[s]) && !TAFFY.isObject(mtest) && !TAFFY.isArray(mtest)) ? (mtest === mvalue[s]) :
-                                            (T[s] && T.isFunction(T[s])) ? T[s](mvalue, mtest) :
+                                            (s.indexOf("is") === -1 && !TAFFY.isNull(mvalue) && !TAFFY.isUndefined(mvalue) && !TAFFY.isObject(mtest) && !TAFFY.isArray(mtest)) ? (mtest === mvalue[s]) :
+                                            (T[s] && T.isFunction(T[s]) && s.indexOf("is") === 0) ? T[s](mvalue) === mtest :
+                                            (T[s] && T.isFunction(T[s])) ? T[s](mvalue,mtest) :
                                             (su === f));
                                     r = (r && !su) ? false : (!r && !su) ? true : r; 
-
+								 
                                     return r;
                                 };
                                 c.push(matchFunc)
@@ -932,14 +933,14 @@ var TAFFY;
         	 		 // Check to see if array of indexes
 		        	 if (T.isArray(f)) {
 		        	 	each(f,function (r) {
-		        	 		records = runIndexes(f);
+		        	 		records.push(runIndexes(f));
 		        	 	});
 		        	 }
  				});
                 if (UniqueEnforce && records.length > 1) {
                 	records = [];
                 }
-               
+            
        		return records;
        }
 				
@@ -1263,10 +1264,9 @@ var TAFFY;
                         // * Call the query method to setup a new query
                         // **************************************** 
                          each(arguments, function (f) {
-                      
+                      		
                          	if (isIndexable(f)) {
-    							
-                         		context.index.push(f);
+    							context.index.push(f);
                          	} else {
                 				context.q.push(returnFilter(f));
                 			}
@@ -1609,7 +1609,7 @@ var TAFFY;
             for (var z = 0; z < ts.length; z++) {
                 (function (y) {
                     TAFFY["is" + y] = function (c) {
-                        return (TAFFY.typeOf(c) === y.toLowerCase()) ? true : false;
+                        return TAFFY.typeOf(c) === y.toLowerCase() ? true : false;
                     }
                 }(ts[z]))
             }
