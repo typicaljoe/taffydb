@@ -15,7 +15,7 @@ How you ever noticed how JavaScript object literals look a lot like records? And
  - Easily extended with your own functions
  - Compatible with any DOM library (jQuery, YUI, Dojo, etc)
 
-## How to create a database
+## Create a DB
 
 Just pass in JSON:
 
@@ -30,9 +30,9 @@ Just pass in JSON:
     }]);
 
 
-## How to find data
+## Find data
 
-Use JSON again to compare:
+Use JSON to compare:
 
     var item1 = products({item:1});
     // where item is equal to 1
@@ -41,7 +41,7 @@ Use JSON again to compare:
 	var blueRayPlayers = products({name:{like:"Blue Ray"}});
 	// where name is like "Blue Ray"
 
-## Using data
+## Use data
 
     // update the price of the Blue Ray Player to 89.99
     products({item:1}).update({price:89.99});
@@ -59,9 +59,12 @@ Use JSON again to compare:
     var row = products({item:2}).supplant("<tr><td>{name}</td><td>{price}</td></tr>");
     // row now equal to "<tr><td>3D TV</td><td>17999.99</td></tr>"
 
-## Documentation
+## Documentation, support, updates
 
-View more docs and examples and get support at http://taffydb.com
+View more docs and examples, get support, and get notified of updates:
+
+Web: http://taffydb.com
+Twitter: http://twitter.com/mriansmith 
 
 
 ## Software License Agreement (BSD License)
