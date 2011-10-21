@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.3.6", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.3.7", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -461,6 +461,7 @@ var TAFFY;
                 this.context({
                     results: this.getDBI().query(this.context())
                 });
+                
             }
 
         API.extend("filter", function () {
@@ -933,7 +934,10 @@ var TAFFY;
         	 		 // Check to see if array of indexes
 		        	 if (T.isArray(f)) {
 		        	 	each(f,function (r) {
-		        	 		records.push(runIndexes(f));
+		        	 		each(runIndexes(r),function (rr) {
+		        	 			records.push(rr);
+		        	 		});
+		        	 		
 		        	 	});
 		        	 }
  				});
@@ -1136,7 +1140,7 @@ var TAFFY;
 			                		// use indexes
 			                		
 			                		var indexed = runIndexes(context.index);
-			    
+			    					
 			                		// run filters
 			                		each(indexed, function (r) {
                                	   		// Run filter to see if record matches query
