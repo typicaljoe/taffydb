@@ -1,6 +1,6 @@
 # TaffyDB (taffy.js)
 
-TaffyDB is an opensouce library that brings database features into your JavaScript applications.
+TaffyDB is an open source library that brings database features into your JavaScript applications.
 
 ## Introduction
 
