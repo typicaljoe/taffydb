@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.4", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.4.1", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -558,15 +558,12 @@ var TAFFY;
             // * Takes: a object and passes it off DBI update method for all matched records
             // **************************************** 
             var runEvent = true, o = {}, args = arguments;
-            if (TAFFY.isString(arguments[0]))
+            if (TAFFY.isString(arguments[0]) && (arguments.length == 2 || arguments.length == 3))
             {
-           	 	each(arguments,function (r,i) {
-            		if (!(i % 2) && args.length >= i+1) {
-            			o[r] = args[(i+1)];
-            		} else if (!(i % 2) && args.length == i+1) {
-            			
-            		}
-            	});
+           	 	o[arguments[0]] = arguments[1];
+           	 	if (arguments.length == 3) {
+           	 		runEvent = arguments[2];
+           	 	}
         	} else {
         		o = args[0];
         		if (args.length == 2) {
