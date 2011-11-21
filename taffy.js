@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.3.8", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.4", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -43,13 +43,13 @@ var TAFFY;
                 // *
                 // * Takes:
                 // * a = an object/value or an array of objects/values
-                // * f = a function or an array of functions to run each value against
+                // * f = a function
                 // * u = optional flag to describe how to handle undefined values in array of values. True: pass them to the functions, False: skip. Default False;
                 // * Purpose: Used to loop over arrays
                 // *
                 // ****************************************  
-                    if (a.length == 1) {
-                    	fun(a[0],0);
+                    if (a && ((T.isArray(a) && a.length == 1) || (!T.isArray(a)))) {
+                    	fun((T.isArray(a)) ? a[0] : a,0);
                     } else {
                     for (var r, i, x = 0, a = (T.isArray(a)) ? a : [a], y = a.length; x < y; x++) {
                         var i = a[x];
@@ -70,7 +70,7 @@ var TAFFY;
                 // *
                 // * Takes:
                 // * o = an object
-                // * f = a function or an array of functions to run each value fromt he object
+                // * f = a function
                 // * Purpose: Used to loop over objects
                 // *
                 // ****************************************  
@@ -410,14 +410,14 @@ var TAFFY;
                         na = [],
                         rv = '_',
                         rt = '';
+            
                     // loop over the string char by char
                     for (var x = 0, xx = nthing.length; x < xx; x++) {
                         // take the char at each location
                         var c = nthing.charCodeAt(x);
-
                         // check to see if it is a valid number char and append it to the array.
                         // if last char was a string push the string to the charnum array
-                        if ((c >= 48 && c <= 57) || c === 46 || c === 45) {
+                        if ((c >= 48 && c <= 57) || c === 46) {
                             if (rt != "n") {
                                 rt = "n";
                                 na.push(rv.toLowerCase());
@@ -552,19 +552,42 @@ var TAFFY;
              return this.getroot(nc);
         });
 
-		API.extend("update", function (o,runEvent) {
+		API.extend("update", function () {
             // ****************************************
             // *
             // * Takes: a object and passes it off DBI update method for all matched records
             // **************************************** 
+            var runEvent = true, o = {}, args = arguments;
+            if (TAFFY.isString(arguments[0]))
+            {
+           	 	each(arguments,function (r,i) {
+            		if (!(i % 2) && args.length >= i+1) {
+            			o[r] = args[(i+1)];
+            		} else if (!(i % 2) && args.length == i+1) {
+            			
+            		}
+            	});
+        	} else {
+        		o = args[0];
+        		if (args.length == 2) {
+        			runEvent = args[0];
+        		}
+        	}
+            
             var that = this;
             run.call(this);
             each(this.context().results,function (r) {
             	var c = o;
-            	if (T.isFunction(c)) {
-            		c = c(TAFFY.mergeObj(r,{}));
+            	if (TAFFY.isFunction(c)) {
+            		c = c.apply(TAFFY.mergeObj(r,{}));
+            	} else {
+            		if (T.isFunction(c)) {
+            			c = c(TAFFY.mergeObj(r,{}));
+            		}
             	}
-                that.getDBI().update(r.___id, c, runEvent);
+            	if (TAFFY.isObject(c)) {
+                	that.getDBI().update(r.___id, c, runEvent);
+               }
             });
             if (this.context().results.length) {
                 this.context({
@@ -984,9 +1007,10 @@ var TAFFY;
                         // * Takes: a new record to insert
                         // * Purpose: merge the object with the template, add an ID, insert into DB, call insert event
                         // **************************************** 
-                        var columns = [];
-                        var records = [];
-                        each(JSONProtect(i), function (v, i) {
+                        var columns = [],
+                        records = [],
+                        input = JSONProtect(i);
+                        each(input, function (v, i) {
                             if (T.isArray(v) && i === 0) {
                                 each(v, function (av) {
 
@@ -1008,7 +1032,7 @@ var TAFFY;
                                 });
                                 v = o;
                             }
-                            TC++;
+
                             RC++;
                             v["___id"] = "T" + String(idpad + TC).slice(-6) + "R" + String(idpad + RC).slice(-6);
                             v["___s"] = true;
@@ -1058,16 +1082,20 @@ var TAFFY;
                         var nr = T.mergeObj(or, changes);
                       
                         var tc = {};
+                        var hasChange = false;
                         eachin(nr,function (v,i) {
                         	if (TAFFY.isUndefined(or[i]) || or[i] != v) {
                         		tc[i] = v;
+                        		hasChange = true;
                         	}
                         })
-                        if (settings.onUpdate && (runEvent || TAFFY.isUndefined(runEvent))) {
-                            settings.onUpdate.call(nr, TOb[ID[id]], tc);
+                        if (hasChange) {
+                        	if (settings.onUpdate && (runEvent || TAFFY.isUndefined(runEvent))) {
+                            	settings.onUpdate.call(nr, TOb[ID[id]], tc);
+                       		}
+                        	TOb[ID[id]] = nr;
+                        	DBI.dm(new Date());
                         }
-                        TOb[ID[id]] = nr;
-                        DBI.dm(new Date());
                     },
                     remove: function (id) {
                         // ****************************************
@@ -1286,6 +1314,7 @@ var TAFFY;
                     // *
                     // * If new records have been passed on creation of the DB either as JSON or as an array/object, insert them
                     // **************************************** 
+                TC++;
                 if (d) {
                     DBI.insert(d);
                 }
@@ -1339,7 +1368,7 @@ var TAFFY;
 					}
 					root.settings({storageName:n});
 					};
-                    return r;
+                    return root;
                 }
 				
                 // ****************************************
