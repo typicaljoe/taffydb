@@ -226,6 +226,8 @@ var TAFFY;
                                             (s === "likenocase") ? (mvalue.toLowerCase().indexOf(mtest.toLowerCase()) >= 0) : 
                                             (s === "is") ? (mvalue === mtest) : 
                                             (s === "isnocase") ? (mvalue.toLowerCase() === mtest.toLowerCase()) : 
+                                            (s === "isnot") ? (mvalue !== mtest) : 
+                                            (s === "isnotnocase") ? (mvalue.toLowerCase() !== mtest.toLowerCase()) : 
                                             (s === "has") ? (T.has(mvalue, mtest)) : 
                                             (s === "hasall") ? (T.hasAll(mvalue, mtest)) : 
                                             (s.indexOf("is") === -1 && !TAFFY.isNull(mvalue) && !TAFFY.isUndefined(mvalue) && !TAFFY.isObject(mtest) && !TAFFY.isArray(mtest)) ? (mtest === mvalue[s]) :
