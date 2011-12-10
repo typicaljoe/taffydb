@@ -1318,6 +1318,19 @@ var TAFFY;
 
 				
                 root.insert = DBI.insert;
+                root.merge = function(i, key) {
+                    key = (key || 'id');
+                    var search = {};
+                    each(i, function(o) {
+                        search[key] = o[key];
+                        var existingObject = root(search).first();
+                        if(existingObject) {
+                            DBI.update(existingObject.___id, o, false);
+                        } else {
+                            DBI.insert(o, false);
+                        }
+                    });
+                }
                 root.TAFFY = true;
                 root.sort = DBI.sort;
                 // ****************************************
