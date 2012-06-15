@@ -14,7 +14,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-// Setup TAFFY Function (nameSpace) to return an object with methods.
+// Setup TAFFY Function (nameSpace) to return an object with methods
 var TAFFY; 
 (function () {
     "use strict";
@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.4.1", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.5", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -224,14 +224,15 @@ var TAFFY;
                                             (s === "rightnocase") ? (mvalue.toLowerCase().substring((mvalue.length - mtest.length)) === mtest.toLowerCase()) : 
                                             (s === "like") ? (mvalue.indexOf(mtest) >= 0) : 
                                             (s === "likenocase") ? (mvalue.toLowerCase().indexOf(mtest.toLowerCase()) >= 0) : 
-                                            (s === "is") ? (mvalue === mtest) : 
-                                            (s === "isnocase") ? (mvalue.toLowerCase() === mtest.toLowerCase()) : 
+                                            (s === "exact") ? (mvalue === mtest) : 
+                                            (s === "is") ? (mvalue == mtest) : 
+                                            (s === "isnocase") ? (mvalue.toLowerCase ? mvalue.toLowerCase() == mtest.toLowerCase() : mvalue == mtest) : 
                                             (s === "has") ? (T.has(mvalue, mtest)) : 
                                             (s === "hasall") ? (T.hasAll(mvalue, mtest)) : 
                                             (s.indexOf("is") === -1 && !TAFFY.isNull(mvalue) && !TAFFY.isUndefined(mvalue) && !TAFFY.isObject(mtest) && !TAFFY.isArray(mtest)) ? (mtest === mvalue[s]) :
                                             (T[s] && T.isFunction(T[s]) && s.indexOf("is") === 0) ? T[s](mvalue) === mtest :
                                             (T[s] && T.isFunction(T[s])) ? T[s](mvalue,mtest) :
-                                            (su === f));
+                                            (su == f));
                                     r = (r && !su) ? false : (!r && !su) ? true : r; 
 								 
                                     return r;
@@ -1072,7 +1073,7 @@ var TAFFY;
                         	eachin(changes,function (v,p) {
                         		nc[(settings.forcePropertyCase === "lower") ? p.toLowerCase() : (settings.forcePropertyCase === "upper") ? p.toUpperCase() : p] = v;
                         	});
-                        	 changes = nc;
+                        	changes = nc;
                         } 
                         
                         var or = TOb[ID[id]];
@@ -1081,7 +1082,7 @@ var TAFFY;
                         var tc = {};
                         var hasChange = false;
                         eachin(nr,function (v,i) {
-                        	if (TAFFY.isUndefined(or[i]) || or[i] != v) {
+                        	if (TAFFY.isUndefined(or[i]) || or[i] !== v) {
                         		tc[i] = v;
                         		hasChange = true;
                         	}
@@ -1318,6 +1319,26 @@ var TAFFY;
 
 				
                 root.insert = DBI.insert;
+                
+                root.merge = function(i, key, runEvent) {
+                    var key = (key || 'id');
+                    var runEvent = (runEvent || false);
+                    var search = {};
+                    var finalSearch = [];
+                    each(i, function(o) {
+                        search[key] = o[key];
+                        finalSearch.push(o[key]);
+                        var existingObject = root(search).first();
+                        if(existingObject) {
+                            DBI.update(existingObject.___id, o, runEvent);
+                        } else {
+                            DBI.insert(o, runEvent);
+                        }
+                    });
+                    var obj = {};
+                    obj[key] = finalSearch;
+                    return root(obj);
+                }
                 root.TAFFY = true;
                 root.sort = DBI.sort;
                 // ****************************************
