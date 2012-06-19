@@ -22,7 +22,7 @@ var TAFFY;
         // TC = Counter for Taffy DBs on page, used for unique IDs
         // cmax = size of charnumarray conversion cache
         // idpad = zeros to pad record IDs with
-        var version = "2.5", TC = 1, idpad = "000000", cmax = 1000, API = {};
+        var version = "2.5.1", TC = 1, idpad = "000000", cmax = 1000, API = {};
 
         var JSONProtect = function (t) {
                 // ****************************************
@@ -204,14 +204,13 @@ var TAFFY;
                                 var matchFunc = function () {
 
                                     // get the value from the record
-                                    var mvalue = this[i];
+                                    var mvalue = this[i], eqeq = "==", bangeq = "!=", eqeqeq = "===", bangeqeq = "!==";
                                     
-									 if ((s.indexOf("!") === 0)) {
+									 if ((s.indexOf("!") === 0) && s !== bangeq && s !== bangeqeq) {
                                     // if the filter name starts with ! as in "!is" then reverse the match logic and remove the !
                                     	su = false;
                                     	s = s.substring(1, s.length);
                                 	}
-								
 									 // get the match results based on the s/match type
                                     var r = ((s === "regex") ? (mtest.test(mvalue)) : 
                                             (s === "lt") ? (mvalue < mtest) : 
@@ -224,15 +223,18 @@ var TAFFY;
                                             (s === "rightnocase") ? (mvalue.toLowerCase().substring((mvalue.length - mtest.length)) === mtest.toLowerCase()) : 
                                             (s === "like") ? (mvalue.indexOf(mtest) >= 0) : 
                                             (s === "likenocase") ? (mvalue.toLowerCase().indexOf(mtest.toLowerCase()) >= 0) : 
-                                            (s === "exact") ? (mvalue === mtest) : 
-                                            (s === "is") ? (mvalue == mtest) : 
+                                            (s === "is") ? (mvalue === mtest) : 
+                                            (s === eqeqeq) ? (mvalue === mtest) : 
+                                            (s === eqeq) ? (mvalue == mtest) : 
+                                            (s === bangeqeq) ? (mvalue !== mtest) : 
+                                            (s === bangeq) ? (mvalue != mtest) : 
                                             (s === "isnocase") ? (mvalue.toLowerCase ? mvalue.toLowerCase() == mtest.toLowerCase() : mvalue == mtest) : 
                                             (s === "has") ? (T.has(mvalue, mtest)) : 
                                             (s === "hasall") ? (T.hasAll(mvalue, mtest)) : 
                                             (s.indexOf("is") === -1 && !TAFFY.isNull(mvalue) && !TAFFY.isUndefined(mvalue) && !TAFFY.isObject(mtest) && !TAFFY.isArray(mtest)) ? (mtest === mvalue[s]) :
                                             (T[s] && T.isFunction(T[s]) && s.indexOf("is") === 0) ? T[s](mvalue) === mtest :
                                             (T[s] && T.isFunction(T[s])) ? T[s](mvalue,mtest) :
-                                            (su == f));
+                                            (false));
                                     r = (r && !su) ? false : (!r && !su) ? true : r; 
 								 
                                     return r;
