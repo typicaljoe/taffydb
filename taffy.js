@@ -34,7 +34,7 @@ var TAFFY, exports;
     // cmax = size of charnumarray conversion cache
     // idpad = zeros to pad record IDs with
     var
-      version = '2.5.3',
+      version = '2.6',
       TC      = 1,
       idpad   = '000000',
       cmax    = 1000,
@@ -270,9 +270,14 @@ var TAFFY, exports;
                   eqeq     = '==',
                   bangeq   = '!=',
                   eqeqeq   = '===',
+                  lt   = '<',
+                  gt   = '>',
+                  lteq   = '<=',
+                  gteq   = '>=',
                   bangeqeq = '!==',
                   r
                   ;
+
 
                 if ( (s.indexOf( '!' ) === 0) && s !== bangeq &&
                   s !== bangeqeq )
@@ -283,10 +288,10 @@ var TAFFY, exports;
                 }
                 // get the match results based on the s/match type
                 r = (
-                  (s === 'regex') ? (mtest.test( mvalue )) : (s === 'lt')
-                  ? (mvalue < mtest)  : (s === 'gt')
-                  ? (mvalue > mtest)  : (s === 'lte')
-                  ? (mvalue <= mtest) : (s === 'gte')
+                  (s === 'regex') ? (mtest.test( mvalue )) : (s === 'lt' || s === lt)
+                  ? (mvalue < mtest)  : (s === 'gt' || s === gt)
+                  ? (mvalue > mtest)  : (s === 'lte' || s === lteq)
+                  ? (mvalue <= mtest) : (s === 'gte' || s === gteq)
                   ? (mvalue >= mtest) : (s === 'left')
                   ? (mvalue.indexOf( mtest ) === 0) : (s === 'leftnocase')
                   ? (mvalue.toLowerCase().indexOf( mtest.toLowerCase() )
@@ -298,8 +303,7 @@ var TAFFY, exports;
                     : (s === 'like')
                   ? (mvalue.indexOf( mtest ) >= 0) : (s === 'likenocase')
                   ? (mvalue.toLowerCase().indexOf(mtest.toLowerCase()) >= 0)
-                    : (s === 'is')
-                  ? (mvalue === mtest) : (s === eqeqeq)
+                    : (s === eqeqeq || s === 'is')
                   ? (mvalue ===  mtest) : (s === eqeq)
                   ? (mvalue == mtest) : (s === bangeqeq)
                   ? (mvalue !==  mtest) : (s === bangeq)
@@ -570,7 +574,7 @@ var TAFFY, exports;
         nq.push( v );
       });
       nc.q = nq;
-      // Hadnle passing of ___ID or an record on lookup.
+      // Hadnle passing of ___ID or a record on lookup.
       each( arguments, function ( f ) {
         nc.q.push( returnFilter( f ) );
         nc.filterRaw.push( f );
@@ -805,6 +809,160 @@ var TAFFY, exports;
       });
       return lowest;
     });
+  /*  
+    Taffy innerJoin Extension (OCD edition)
+=======================================
+
+How to Use
+**********
+
+left_table.innerJoin( right_table, condition1 <,... conditionN> ) 
+
+A condition can take one of 2 forms:
+
+  1. An ARRAY with 2 or 3 values:
+  A column name from the left table, an optional comparison string,
+  and column name from the right table.  The condition passes if the test
+  indicated is true.   If the condition string is omitted, '===' is assumed.
+  EXAMPLES: [ 'last_used_time', '>=', 'current_use_time' ], [ 'user_id','id' ]
+
+  2. A FUNCTION:
+  The function receives a left table row and right table row during the
+  cartesian join.  If the function returns true for the rows considered,
+  the merged row is included in the result set.
+  EXAMPLE: function (l,r){ return l.name === r.label; }
+
+Conditions are considered in the order they are presented.  Therefore the best
+performance is realized when the least expensive and highest prune-rate
+conditions are placed first, since if they return false Taffy skips any
+further condition tests.
+
+Other notes
+***********
+
+This code passes jslint with the exception of 2 warnings about 
+the '==' and '!=' lines.  We can't do anything about that short of
+deleting the lines.
+
+Credits
+*******
+
+Heavily based upon the work of Ian Toltz.
+Revisions to API by Michael Mikowski.
+Code convention per standards in http://manning.com/mikowski
+
+*/
+
+/*jslint           browser : true,   continue : true,
+ devel  : true,    indent : 2,       maxerr  : 50,
+ newcap : true,  plusplus : true,    regexp  : true,
+ sloppy : true,      vars : true,     white  : true
+*/
+
+/*global TAFFY */
+
+(function () {
+  var innerJoinFunction = (function () {
+    var fnCompareList, fnCombineRow, fnMain;
+
+    fnCompareList = function ( left_row, right_row, arg_list ) {
+      var data_lt, data_rt, op_code, error;
+
+      if ( arg_list.length === 2 ){
+        data_lt = left_row[arg_list[0]];
+        op_code = '===';
+        data_rt = right_row[arg_list[1]];
+      }
+      else {
+        data_lt = left_row[arg_list[0]];
+        op_code = arg_list[1];
+        data_rt = right_row[arg_list[2]];
+      }
+
+      switch ( op_code ){
+        case '===' : return data_lt === data_rt;
+        case '!==' : return data_lt !== data_rt;
+        case '<'   : return data_lt <   data_rt;
+        case '>'   : return data_lt >   data_rt;
+        case '<='  : return data_lt <=  data_rt;
+        case '>='  : return data_lt >=  data_rt;
+        case '=='  : return data_lt ==  data_rt;
+        case '!='  : return data_lt !=  data_rt;
+        default :
+          throw String(op_code) + ' is not supported';
+      }
+    };
+
+    fnCombineRow = function ( left_row, right_row ) {
+      var out_map = {}, i, prefix;
+
+      for ( i in left_row ){
+        if ( left_row.hasOwnProperty(i)){
+          out_map[i] = left_row[i];
+         }
+      }
+      for (i in right_row) {
+        if ( right_row.hasOwnProperty(i) && i !== '___id' && i !== '___s' ) {
+          prefix = !TAFFY.isUndefined(out_map[i]) ? 'right_' : '';
+          out_map[prefix + String(i) ] = right_row[i];
+        }
+      }
+      return out_map;
+    };
+
+    fnMain = function ( table ) {
+      var
+        right_table, i,
+        arg_list    = arguments,
+        arg_length  = arg_list.length,
+        result_list = []
+        ;
+
+      if ( typeof table.filter !== 'function' ) {
+        if ( table.TAFFY) { right_table = table(); }
+        else {
+          throw 'TAFFY DB or result not supplied';
+        }
+      }
+      else { right_table = table; }
+
+      this.context({
+        results: this.getDBI().query( this.context() )
+      });
+
+      TAFFY.each(this.context().results, function ( left_row ){
+        right_table.each( function ( right_row ) {
+          var arg_data, is_ok = true;
+          CONDITION:
+          for (i = 1; i < arg_length; i++ ) {
+            arg_data = arg_list[i];
+            if (typeof arg_data === 'function'){
+              is_ok = arg_data( left_row, right_row );
+            }
+            else if ( typeof arg_data === 'object' && arg_data.length ){
+              is_ok = fnCompareList( left_row, right_row, arg_data );
+            }
+            else {
+              is_ok = false;
+            }
+
+            if ( ! is_ok ) { break CONDITION; } // short circuit
+          }
+
+          if ( is_ok ){
+            result_list.push( fnCombineRow(left_row, right_row ) );
+          }
+        });
+      });
+      return TAFFY(result_list)();
+    };
+
+    return fnMain;
+  }());
+
+  API.extend('join', innerJoinFunction);
+}());
+    
 
     API.extend( 'max', function ( c ) {
       // ****************************************
@@ -966,7 +1124,8 @@ var TAFFY, exports;
           onDBChange        : false,
           storageName       : false,
           forcePropertyCase : null,
-          cacheSize         : 100
+          cacheSize         : 100,
+          name              : ""
         },
         dm = new Date(),
         CacheCount = 0,
@@ -1369,7 +1528,8 @@ var TAFFY, exports;
           order     : [],
           results   : false,
           run       : null,
-          sort      : null
+          sort      : null,
+          settings  : settings
         };
         // ****************************************
         // *
