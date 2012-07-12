@@ -34,7 +34,7 @@ var TAFFY, exports;
     // cmax = size of charnumarray conversion cache
     // idpad = zeros to pad record IDs with
     var
-      version = '2.6',
+      version = '2.6.1',
       TC      = 1,
       idpad   = '000000',
       cmax    = 1000,
@@ -665,9 +665,9 @@ var TAFFY, exports;
         }
       }
       else {
-        o = args[0];
+        o = arg0;
         if ( args.length === 2 ){
-          runEvent = arg0;
+          runEvent = arg1;
         }
       }
 
