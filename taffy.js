@@ -41,7 +41,20 @@ var TAFFY, exports;
       API     = {},
       protectJSON, each, eachin, isIndexable, returnFilter,
       runFilters,  numcharsplit, orderByCol
-    ;
+      ;
+
+    // 2012-07-24 mmikowski - UNTESTED
+    // fix to fail-over to jQuery JSON support if native JSON object not available
+    if ( ! window.JSON ){
+      if ( ! $.toJSON ){
+        throw 'This environment does not support the native JSON object.'
+        + 'Please install the jQuery JSON plugin and we will use that.'
+        ;
+      }
+      window.JSON = {};
+      window.JSON.stringfy = $.toJSON;
+      window.JSON.parse    = $.secureEvalJSON;
+    }
 
     protectJSON = function ( t ) {
       // ****************************************
