@@ -18,30 +18,34 @@
 /*jslint        browser : true, continue : true,
  devel  : true, indent  : 2,    maxerr   : 500,
  newcap : true, nomen   : true, plusplus : true,
- regexp : true, sloppy  : true, vars     : true,
+ regexp : true, sloppy  : true, vars     : false,
  white  : true
- */
-/*global TAFFY, T */
+*/
 
 // BUILD 193d48d, modified by mmikowski to pass jslint
 
-// Setup TAFFY Function (nameSpace) to return an object with methods
-var TAFFY, exports;
+// Setup TAFFY name space to return an object with methods
+var TAFFY, exports, T;
 (function () {
   'use strict';
+  var
+    typeList,     makeTest,     idx,    typeKey,
+    version,      TC,           idpad,  cmax,
+    API,          protectJSON,  each,   eachin,
+    isIndexable,  returnFilter, runFilters,
+    numcharsplit, orderByCol,   run
+    ;
+
+
   if ( ! TAFFY ){
     // TC = Counter for Taffy DBs on page, used for unique IDs
     // cmax = size of charnumarray conversion cache
     // idpad = zeros to pad record IDs with
-    var
-      version = '2.6.1',
-      TC      = 1,
-      idpad   = '000000',
-      cmax    = 1000,
-      API     = {},
-      protectJSON, each, eachin, isIndexable, returnFilter,
-      runFilters,  numcharsplit, orderByCol
-    ;
+    version = '2.6.2'; // proposed mmikowski 2012-08-06
+    TC      = 1;
+    idpad   = '000000';
+    cmax    = 1000;
+    API     = {};
 
     protectJSON = function ( t ) {
       // ****************************************
@@ -125,6 +129,7 @@ var TAFFY, exports;
     };
 
     isIndexable = function ( f ) {
+      var i;
       // Check to see if record ID
       if ( T.isString( f ) && /[t][0-9]*[r][0-9]*/i.test( f ) ){
         return true;
@@ -136,7 +141,7 @@ var TAFFY, exports;
 
       // Check to see if array of indexes
       if ( T.isArray( f ) ){
-        var i = true;
+        i = true;
         each( f, function ( r ) {
           if ( !isIndexable( r ) ){
             i = false;
@@ -214,8 +219,7 @@ var TAFFY, exports;
         // now build a func to loop over the filters and return true if ANY of the filters match
         // This handles logical OR expressions
         f = function () {
-          var that = this;
-          var match = false;
+          var that = this, match = false;
           each( nf, function ( f ) {
             if ( runFilters( that, f ) ){
               match = true;
@@ -241,13 +245,13 @@ var TAFFY, exports;
               'is' : v
             };
           }
-          // loop over each value on the value object (if any)
+          // loop over each value on the value object  - if any
           eachin( v, function ( mtest, s ) {
-            // s = match type (is, hasAll, like, etc)
-            var c = [];
+            // s = match type, e.g. is, hasAll, like, etc
+            var c = [], looper;
 
             // function to loop and apply filter
-            var looper = (s === 'hasAll') ?
+            looper = (s === 'hasAll') ?
               function ( mtest, func ) {
                 func( mtest );
               } : each;
@@ -257,12 +261,11 @@ var TAFFY, exports;
 
               // su = match success
               // f = match false
-              var su = true,
-                f = false;
+              var su = true, f = false, matchFunc;
 
 
               // push a function onto the filter collection to do the matching
-              var matchFunc = function () {
+              matchFunc = function () {
 
                 // get the value from the record
                 var
@@ -287,6 +290,7 @@ var TAFFY, exports;
                   s = s.substring( 1, s.length );
                 }
                 // get the match results based on the s/match type
+                /*jslint eqeq : true */
                 r = (
                   (s === 'regex') ? (mtest.test( mvalue )) : (s === 'lt' || s === lt)
                   ? (mvalue < mtest)  : (s === 'gt' || s === gt)
@@ -326,6 +330,7 @@ var TAFFY, exports;
                     : (T[s] && T.isFunction( T[s] ))
                   ? T[s]( mvalue, mtest ) : (false)
                 );
+                /*jslint eqeq : false */
                 r = (r && !su) ? false : (!r && !su) ? true : r;
 
                 return r;
@@ -342,8 +347,7 @@ var TAFFY, exports;
               // else build a function to loop over all the filters and return true only if ALL match
               // this is a logical AND
               nf.push( function () {
-                var that = this;
-                var match = false;
+                var that = this, match = false;
                 each( c, function ( f ) {
                   if ( f.apply( that ) ){
                     match = true;
@@ -386,101 +390,112 @@ var TAFFY, exports;
         return f;
       }
     };
-    
-    orderByCol = function (ar, o) {
-                // ****************************************
-                // *
-                // * Takes: takes an array and a sort object
-                // * Returns: the array sorted
-                // * Purpose: Accept filters such as "[col], [col2]" or "[col] desc" and sort on those columns
-                // **************************************** 
-				
-                var sortFunc = function (a, b) {
-                        // function to pass to the native array.sort to sort an array
-                        var r = 0;
 
-                        T.each(o, function (sd) {
-                            // loop over the sort instructions
-                            // get the column name
-                            var o = sd.split(" ");
-                            var col = o[0];
+    orderByCol = function ( ar, o ) {
+      // ****************************************
+      // *
+      // * Takes: takes an array and a sort object
+      // * Returns: the array sorted
+      // * Purpose: Accept filters such as "[col], [col2]" or "[col] desc" and sort on those columns
+      // *
+      // ****************************************
 
-                            // get the direction
-                            var dir = (o.length === 1) ? "logical" : o[1];
+      var sortFunc = function ( a, b ) {
+        // function to pass to the native array.sort to sort an array
+        var r = 0;
 
+        T.each( o, function ( sd ) {
+          // loop over the sort instructions
+          // get the column name
+          var o, col, dir, c, d;
+          o = sd.split( ' ' );
+          col = o[0];
 
-                            if (dir === 'logical') {
-                                // if dir is logical than grab the charnum arrays for the two values we are looking at
-                                var c = numcharsplit(a[col]),
-                                    d = numcharsplit(b[col]);
-                                // loop over the charnumarrays until one value is higher than the other
-                                T.each((c.length <= d.length) ? c : d, function (x, i) {
-                                    if (c[i] < d[i]) {
-                                        r = -1;
-
-                                        return TAFFY.EXIT
-                                    } else if (c[i] > d[i]) {
-                                        r = 1;
-                                        return TAFFY.EXIT
-                                    }
-                                })
-                            } else if (dir === 'logicaldesc') {
-                                // if logicaldesc than grab the charnum arrays for the two values we are looking at
-                                var c = numcharsplit(a[col]),
-                                    d = numcharsplit(b[col]);
-                                // loop over the charnumarrays until one value is lower than the other
-                                T.each((c.length <= d.length) ? c : d, function (x, i) {
-                                    if (c[i] > d[i]) {
-                                        r = -1;
-                                        return TAFFY.EXIT
-                                    } else if (c[i] < d[i]) {
-                                        r = 1;
-                                        return TAFFY.EXIT
-                                    }
-                                })
-                            } else if (dir === 'asec' && a[col] < b[col]) {
-                                // if asec (default) check to see which is higher
-                                r = -1;
-                                return T.EXIT;
-                            } else if (dir === 'asec' && a[col] > b[col]) {
-                                // if asec (default) check to see which is higher
-                                r = 1;
-                                return T.EXIT;
-                            } else if (dir === 'desc' && a[col] > b[col]) {
-                                // if desc check to see which is lower
-                                r = -1;
-                                return T.EXIT;
-
-                            } else if (dir === 'desc' && a[col] < b[col]) {
-                                // if desc check to see which is lower
-                                r = 1;
-                               return T.EXIT;
-
-                            }
-                            // if r is still 0 and we are doing a logical sort than look to see if one array is longer than the other
-                            if (r === 0 && dir === 'logical' && c.length < d.length) {
-                                r = -1;
-                            } else if (r === 0 && dir === 'logical' && c.length > d.length) {
-                                r = 1;
-                            } else if (r === 0 && dir === 'logicaldesc' && c.length > d.length) {
-                                r = -1;
-                            } else if (r === 0 && dir === 'logicaldesc' && c.length < d.length) {
-                                r = 1;
-                            }
-
-                            if (r != 0) {
-                                return T.EXIT
-                            }
+          // get the direction
+          dir = (o.length === 1) ? "logical" : o[1];
 
 
-                        })
-                        return r;
-                    }
-                    // call the sort function and return the newly sorted array
-                return (ar && ar.push) ? ar.sort(sortFunc) : ar;
-                
-                
-            };
+          if ( dir === 'logical' ){
+            // if dir is logical than grab the charnum arrays for the two values we are looking at
+            c = numcharsplit( a[col] );
+            d = numcharsplit( b[col] );
+            // loop over the charnumarrays until one value is higher than the other
+            T.each( (c.length <= d.length) ? c : d, function ( x, i ) {
+              if ( c[i] < d[i] ){
+                r = -1;
+                return TAFFY.EXIT;
+              }
+              else if ( c[i] > d[i] ){
+                r = 1;
+                return TAFFY.EXIT;
+              }
+            } );
+          }
+          else if ( dir === 'logicaldesc' ){
+            // if logicaldesc than grab the charnum arrays for the two values we are looking at
+            c = numcharsplit( a[col] );
+            d = numcharsplit( b[col] );
+            // loop over the charnumarrays until one value is lower than the other
+            T.each( (c.length <= d.length) ? c : d, function ( x, i ) {
+              if ( c[i] > d[i] ){
+                r = -1;
+                return TAFFY.EXIT;
+              }
+              else if ( c[i] < d[i] ){
+                r = 1;
+                return TAFFY.EXIT;
+              }
+            } );
+          }
+          else if ( dir === 'asec' && a[col] < b[col] ){
+            // if asec - default - check to see which is higher
+            r = -1;
+            return T.EXIT;
+          }
+          else if ( dir === 'asec' && a[col] > b[col] ){
+            // if asec - default - check to see which is higher
+            r = 1;
+            return T.EXIT;
+          }
+          else if ( dir === 'desc' && a[col] > b[col] ){
+            // if desc check to see which is lower
+            r = -1;
+            return T.EXIT;
+
+          }
+          else if ( dir === 'desc' && a[col] < b[col] ){
+            // if desc check to see which is lower
+            r = 1;
+            return T.EXIT;
+
+          }
+          // if r is still 0 and we are doing a logical sort than look to see if one array is longer than the other
+          if ( r === 0 && dir === 'logical' && c.length < d.length ){
+            r = -1;
+          }
+          else if ( r === 0 && dir === 'logical' && c.length > d.length ){
+            r = 1;
+          }
+          else if ( r === 0 && dir === 'logicaldesc' && c.length > d.length ){
+            r = -1;
+          }
+          else if ( r === 0 && dir === 'logicaldesc' && c.length < d.length ){
+            r = 1;
+          }
+
+          if ( r !== 0 ){
+            return T.EXIT;
+          }
+
+
+        } );
+        return r;
+      };
+      // call the sort function and return the newly sorted array
+      return (ar && ar.push) ? ar.sort( sortFunc ) : ar;
+
+
+    };
 
     // ****************************************
     // *
@@ -552,7 +567,7 @@ var TAFFY, exports;
     // **************************************** 
 
 
-    var run = function () {
+    run = function () {
       this.context( {
         results : this.getDBI().query( this.context() )
       });
@@ -608,11 +623,14 @@ var TAFFY, exports;
       // * Purpose: takes a limit number to limit the number of rows returned by a query. Will update the results
       // * of a query
       // **************************************** 
-      var nc = TAFFY.mergeObj( this.context(), {});
+      var nc = TAFFY.mergeObj( this.context(), {}),
+        limitedresults
+        ;
+
       nc.limit = n;
 
       if ( nc.run && nc.sort ){
-        var limitedresults = [];
+        limitedresults = [];
         each( nc.results, function ( i, x ) {
           if ( (x + 1) > n ){
             return TAFFY.EXIT;
@@ -631,11 +649,14 @@ var TAFFY, exports;
       // * Purpose: takes a limit number to limit the number of rows returned by a query. Will update the results
       // * of a query
       // **************************************** 
-      var nc = TAFFY.mergeObj( this.context(), {} );
+      var nc = TAFFY.mergeObj( this.context(), {} ),
+        limitedresults
+        ;
+
       nc.start = n;
 
       if ( nc.run && nc.sort && !nc.limit ){
-        var limitedresults = [];
+        limitedresults = [];
         each( nc.results, function ( i, x ) {
           if ( (x + 1) > n ){
             limitedresults.push( i );
@@ -697,8 +718,7 @@ var TAFFY, exports;
       // *
       // * Purpose: removes records from the DB via the remove and removeCommit DBI methods
       // **************************************** 
-      var that = this;
-      var c = 0;
+      var that = this, c = 0;
       run.call( this );
       each( this.context().results, function ( r ) {
         that.getDBI().remove( r.___id );
@@ -783,9 +803,8 @@ var TAFFY, exports;
       // * Takes: column to sum up
       // * Returns: Sums the values of a column
       // **************************************** 
-      var total = 0;
-      run.call( this );
-      var that = this;
+      var total = 0, that = this;
+      run.call( that );
       each( arguments, function ( c ) {
         each( that.context().results, function ( r ) {
           total = total + r[c];
@@ -809,167 +828,170 @@ var TAFFY, exports;
       });
       return lowest;
     });
-  /*  
-    Taffy innerJoin Extension (OCD edition)
-=======================================
 
-How to Use
-**********
+    //  Taffy innerJoin Extension (OCD edition)
+    //  =======================================
+    //
+    //  How to Use
+    //  **********
+    //
+    //  left_table.innerJoin( right_table, condition1 <,... conditionN> )
+    //
+    //  A condition can take one of 2 forms:
+    //
+    //    1. An ARRAY with 2 or 3 values:
+    //    A column name from the left table, an optional comparison string,
+    //    and column name from the right table.  The condition passes if the test
+    //    indicated is true.   If the condition string is omitted, '===' is assumed.
+    //    EXAMPLES: [ 'last_used_time', '>=', 'current_use_time' ], [ 'user_id','id' ]
+    //
+    //    2. A FUNCTION:
+    //    The function receives a left table row and right table row during the
+    //    cartesian join.  If the function returns true for the rows considered,
+    //    the merged row is included in the result set.
+    //    EXAMPLE: function (l,r){ return l.name === r.label; }
+    //
+    //  Conditions are considered in the order they are presented.  Therefore the best
+    //  performance is realized when the least expensive and highest prune-rate
+    //  conditions are placed first, since if they return false Taffy skips any
+    //  further condition tests.
+    //
+    //  Other notes
+    //  ***********
+    //
+    //  This code passes jslint with the exception of 2 warnings about
+    //  the '==' and '!=' lines.  We can't do anything about that short of
+    //  deleting the lines.
+    //
+    //  Credits
+    //  *******
+    //
+    //  Heavily based upon the work of Ian Toltz.
+    //  Revisions to API by Michael Mikowski.
+    //  Code convention per standards in http://manning.com/mikowski
+    (function () {
+      var innerJoinFunction = (function () {
+        var fnCompareList, fnCombineRow, fnMain;
 
-left_table.innerJoin( right_table, condition1 <,... conditionN> ) 
+        fnCompareList = function ( left_row, right_row, arg_list ) {
+          var data_lt, data_rt, op_code, error;
 
-A condition can take one of 2 forms:
+          if ( arg_list.length === 2 ){
+            data_lt = left_row[arg_list[0]];
+            op_code = '===';
+            data_rt = right_row[arg_list[1]];
+          }
+          else {
+            data_lt = left_row[arg_list[0]];
+            op_code = arg_list[1];
+            data_rt = right_row[arg_list[2]];
+          }
 
-  1. An ARRAY with 2 or 3 values:
-  A column name from the left table, an optional comparison string,
-  and column name from the right table.  The condition passes if the test
-  indicated is true.   If the condition string is omitted, '===' is assumed.
-  EXAMPLES: [ 'last_used_time', '>=', 'current_use_time' ], [ 'user_id','id' ]
+          /*jslint eqeq : true */
+          switch ( op_code ){
+            case '===' :
+              return data_lt === data_rt;
+            case '!==' :
+              return data_lt !== data_rt;
+            case '<'   :
+              return data_lt < data_rt;
+            case '>'   :
+              return data_lt > data_rt;
+            case '<='  :
+              return data_lt <= data_rt;
+            case '>='  :
+              return data_lt >= data_rt;
+            case '=='  :
+              return data_lt == data_rt;
+            case '!='  :
+              return data_lt != data_rt;
+            default :
+              throw String( op_code ) + ' is not supported';
+          }
+          // 'jslint eqeq : false'  here results in
+          // "Unreachable '/*jslint' after 'return'".
+          // We don't need it though, as the rule exception
+          // is discarded at the end of this functional scope
+        };
 
-  2. A FUNCTION:
-  The function receives a left table row and right table row during the
-  cartesian join.  If the function returns true for the rows considered,
-  the merged row is included in the result set.
-  EXAMPLE: function (l,r){ return l.name === r.label; }
+        fnCombineRow = function ( left_row, right_row ) {
+          var out_map = {}, i, prefix;
 
-Conditions are considered in the order they are presented.  Therefore the best
-performance is realized when the least expensive and highest prune-rate
-conditions are placed first, since if they return false Taffy skips any
-further condition tests.
-
-Other notes
-***********
-
-This code passes jslint with the exception of 2 warnings about 
-the '==' and '!=' lines.  We can't do anything about that short of
-deleting the lines.
-
-Credits
-*******
-
-Heavily based upon the work of Ian Toltz.
-Revisions to API by Michael Mikowski.
-Code convention per standards in http://manning.com/mikowski
-
-*/
-
-/*jslint           browser : true,   continue : true,
- devel  : true,    indent : 2,       maxerr  : 50,
- newcap : true,  plusplus : true,    regexp  : true,
- sloppy : true,      vars : true,     white  : true
-*/
-
-/*global TAFFY */
-
-(function () {
-  var innerJoinFunction = (function () {
-    var fnCompareList, fnCombineRow, fnMain;
-
-    fnCompareList = function ( left_row, right_row, arg_list ) {
-      var data_lt, data_rt, op_code, error;
-
-      if ( arg_list.length === 2 ){
-        data_lt = left_row[arg_list[0]];
-        op_code = '===';
-        data_rt = right_row[arg_list[1]];
-      }
-      else {
-        data_lt = left_row[arg_list[0]];
-        op_code = arg_list[1];
-        data_rt = right_row[arg_list[2]];
-      }
-
-      switch ( op_code ){
-        case '===' : return data_lt === data_rt;
-        case '!==' : return data_lt !== data_rt;
-        case '<'   : return data_lt <   data_rt;
-        case '>'   : return data_lt >   data_rt;
-        case '<='  : return data_lt <=  data_rt;
-        case '>='  : return data_lt >=  data_rt;
-        case '=='  : return data_lt ==  data_rt;
-        case '!='  : return data_lt !=  data_rt;
-        default :
-          throw String(op_code) + ' is not supported';
-      }
-    };
-
-    fnCombineRow = function ( left_row, right_row ) {
-      var out_map = {}, i, prefix;
-
-      for ( i in left_row ){
-        if ( left_row.hasOwnProperty(i)){
-          out_map[i] = left_row[i];
-         }
-      }
-      for (i in right_row) {
-        if ( right_row.hasOwnProperty(i) && i !== '___id' && i !== '___s' ) {
-          prefix = !TAFFY.isUndefined(out_map[i]) ? 'right_' : '';
-          out_map[prefix + String(i) ] = right_row[i];
-        }
-      }
-      return out_map;
-    };
-
-    fnMain = function ( table ) {
-      var
-        right_table, i,
-        arg_list    = arguments,
-        arg_length  = arg_list.length,
-        result_list = []
-        ;
-
-      if ( typeof table.filter !== 'function' ) {
-        if ( table.TAFFY) { right_table = table(); }
-        else {
-          throw 'TAFFY DB or result not supplied';
-        }
-      }
-      else { right_table = table; }
-
-      this.context({
-        results: this.getDBI().query( this.context() )
-      });
-
-      TAFFY.each(this.context().results, function ( left_row ){
-        right_table.each( function ( right_row ) {
-          var arg_data, is_ok = true;
-          CONDITION:
-          for (i = 1; i < arg_length; i++ ) {
-            arg_data = arg_list[i];
-            if (typeof arg_data === 'function'){
-              is_ok = arg_data( left_row, right_row );
+          for ( i in left_row ){
+            if ( left_row.hasOwnProperty( i ) ){
+              out_map[i] = left_row[i];
             }
-            else if ( typeof arg_data === 'object' && arg_data.length ){
-              is_ok = fnCompareList( left_row, right_row, arg_data );
+          }
+          for ( i in right_row ){
+            if ( right_row.hasOwnProperty( i ) && i !== '___id' &&
+              i !== '___s' )
+            {
+              prefix = !TAFFY.isUndefined( out_map[i] ) ? 'right_' : '';
+              out_map[prefix + String( i ) ] = right_row[i];
             }
+          }
+          return out_map;
+        };
+
+        fnMain = function ( table ) {
+          var
+            right_table, i,
+            arg_list = arguments,
+            arg_length = arg_list.length,
+            result_list = []
+            ;
+
+          if ( typeof table.filter !== 'function' ){
+            if ( table.TAFFY ){ right_table = table(); }
             else {
-              is_ok = false;
+              throw 'TAFFY DB or result not supplied';
             }
-
-            if ( ! is_ok ) { break CONDITION; } // short circuit
           }
+          else { right_table = table; }
 
-          if ( is_ok ){
-            result_list.push( fnCombineRow(left_row, right_row ) );
-          }
-        });
-      });
-      return TAFFY(result_list)();
-    };
+          this.context( {
+            results : this.getDBI().query( this.context() )
+          } );
 
-    return fnMain;
-  }());
+          TAFFY.each( this.context().results, function ( left_row ) {
+            right_table.each( function ( right_row ) {
+              var arg_data, is_ok = true;
+              CONDITION:
+                for ( i = 1; i < arg_length; i++ ){
+                  arg_data = arg_list[i];
+                  if ( typeof arg_data === 'function' ){
+                    is_ok = arg_data( left_row, right_row );
+                  }
+                  else if ( typeof arg_data === 'object' && arg_data.length ){
+                    is_ok = fnCompareList( left_row, right_row, arg_data );
+                  }
+                  else {
+                    is_ok = false;
+                  }
 
-  API.extend('join', innerJoinFunction);
-}());
-    
+                  if ( !is_ok ){ break CONDITION; } // short circuit
+                }
+
+              if ( is_ok ){
+                result_list.push( fnCombineRow( left_row, right_row ) );
+              }
+            } );
+          } );
+          return TAFFY( result_list )();
+        };
+
+        return fnMain;
+      }());
+
+      API.extend( 'join', innerJoinFunction );
+    }());
 
     API.extend( 'max', function ( c ) {
       // ****************************************
       // *
       // * Takes: column to find max
       // * Returns: the highest value
-      // **************************************** 
+      // ****************************************
       var highest = null;
       run.call( this );
       each( this.context().results, function ( r ) {
@@ -979,6 +1001,7 @@ Code convention per standards in http://manning.com/mikowski
       });
       return highest;
     });
+
     API.extend( 'select', function () {
       // ****************************************
       // *
@@ -987,8 +1010,7 @@ Code convention per standards in http://manning.com/mikowski
       // * Note if more than one column is given an array of arrays is returned
       // **************************************** 
 
-      var ra = [];
-      var args = arguments;
+      var ra = [], args = arguments;
       run.call( this );
       if ( arguments.length === 1 ){
 
@@ -1015,14 +1037,12 @@ Code convention per standards in http://manning.com/mikowski
       // * Returns: array of values
       // * Note if more than one column is given an array of arrays is returned
       // **************************************** 
-      var ra = [];
-      var args = arguments;
+      var ra = [], args = arguments;
       run.call( this );
       if ( arguments.length === 1 ){
 
         each( this.context().results, function ( r ) {
-          var v = r[args[0]];
-          var dup = false;
+          var v = r[args[0]], dup = false;
           each( ra, function ( d ) {
             if ( v === d ){
               dup = true;
@@ -1036,11 +1056,10 @@ Code convention per standards in http://manning.com/mikowski
       }
       else {
         each( this.context().results, function ( r ) {
-          var row = [];
+          var row = [], dup = false;
           each( args, function ( c ) {
             row.push( r[c] );
           });
-          var dup = false;
           each( ra, function ( d ) {
             var ldup = true;
             each( args, function ( c, i ) {
@@ -1064,7 +1083,7 @@ Code convention per standards in http://manning.com/mikowski
     API.extend( 'supplant', function ( template, returnarray ) {
       // ****************************************
       // *
-      // * Takes: a string template formated with {key} to be replaced with values from the rows, flag to determine if we want array of strings
+      // * Takes: a string template formated with key to be replaced with values from the rows, flag to determine if we want array of strings
       // * Returns: array of values or a string
       // **************************************** 
       var ra = [];
@@ -1106,7 +1125,7 @@ Code convention per standards in http://manning.com/mikowski
 
 
 
-    var T = function ( d ) {
+    T = function ( d ) {
       // ****************************************
       // *
       // * T is the main TAFFY object
@@ -1125,7 +1144,7 @@ Code convention per standards in http://manning.com/mikowski
           storageName       : false,
           forcePropertyCase : null,
           cacheSize         : 100,
-          name              : ""
+          name              : ''
         },
         dm = new Date(),
         CacheCount = 0,
@@ -1154,12 +1173,12 @@ Code convention per standards in http://manning.com/mikowski
         // * Returns: collection with records matching indexed filters
         // **************************************** 
 
+        var records = [], UniqueEnforce = false;
+
         if ( indexes.length === 0 ){
           return TOb;
         }
 
-        var records = [];
-        var UniqueEnforce = false;
         each( indexes, function ( f ) {
           // Check to see if record ID
           if ( T.isString( f ) && /[t][0-9]*[r][0-9]*/i.test( f ) &&
@@ -1229,9 +1248,11 @@ Code convention per standards in http://manning.com/mikowski
           // * Purpose: merge the object with the template, add an ID, insert into DB, call insert event
           // **************************************** 
           var columns = [],
-            records = [],
-            input = protectJSON( i );
+            records   = [],
+            input     = protectJSON( i )
+            ;
           each( input, function ( v, i ) {
+            var nv, o;
             if ( T.isArray( v ) && i === 0 ){
               each( v, function ( av ) {
 
@@ -1243,7 +1264,7 @@ Code convention per standards in http://manning.com/mikowski
               return true;
             }
             else if ( T.isArray( v ) ){
-              var nv = {};
+              nv = {};
               each( v, function ( av, ai ) {
                 nv[columns[ai]] = av;
               });
@@ -1251,7 +1272,7 @@ Code convention per standards in http://manning.com/mikowski
 
             }
             else if ( T.isObject( v ) && settings.forcePropertyCase ){
-              var o = {};
+              o = {};
 
               eachin( v, function ( av, ai ) {
                 o[(settings.forcePropertyCase === 'lower') ? ai.toLowerCase()
@@ -1301,7 +1322,7 @@ Code convention per standards in http://manning.com/mikowski
           // * Purpose: Update a record and change some or all values, call the on update method
           // ****************************************
 
-          var nc = {};
+          var nc = {}, or, nr, tc, hasChange;
           if ( settings.forcePropertyCase ){
             eachin( changes, function ( v, p ) {
               nc[(settings.forcePropertyCase === 'lower') ? p.toLowerCase()
@@ -1311,11 +1332,11 @@ Code convention per standards in http://manning.com/mikowski
             changes = nc;
           }
 
-          var or = TOb[ID[id]];
-          var nr = T.mergeObj( or, changes );
+          or = TOb[ID[id]];
+          nr = T.mergeObj( or, changes );
 
-          var tc = {};
-          var hasChange = false;
+          tc = {};
+          hasChange = false;
           eachin( nr, function ( v, i ) {
             if ( TAFFY.isUndefined( or[i] ) || or[i] !== v ){
               tc[i] = v;
@@ -1370,7 +1391,7 @@ Code convention per standards in http://manning.com/mikowski
           // *
           // * Takes: the context object for a query and either returns a cache result or a new query result
           // **************************************** 
-          var returnq, cid;
+          var returnq, cid, results, indexed, limitq, ni;
 
           if ( settings.cacheSize ) {
             cid = '';
@@ -1389,7 +1410,7 @@ Code convention per standards in http://manning.com/mikowski
           if ( !context.results || !context.run ||
             (context.run && DBI.dm() > context.run) )
           {
-            var results = [];
+            results = [];
 
             // check Cache
 
@@ -1409,7 +1430,7 @@ Code convention per standards in http://manning.com/mikowski
               else {
                 // use indexes
 
-                var indexed = runIndexes( context.index );
+                indexed = runIndexes( context.index );
 
                 // run filters
                 each( indexed, function ( r ) {
@@ -1440,13 +1461,13 @@ Code convention per standards in http://manning.com/mikowski
             ((context.limit && context.limit < returnq.length) ||
               context.start)
           ) {
-            var limitq = [];
+            limitq = [];
             each( returnq, function ( r, i ) {
               if ( !context.start ||
                 (context.start && (i + 1) >= context.start) )
               {
                 if ( context.limit ){
-                  var ni = (context.start) ? (i + 1) - context.start : i;
+                  ni = (context.start) ? (i + 1) - context.start : i;
                   if ( ni < context.limit ){
                     limitq.push( r );
                   }
@@ -1467,10 +1488,11 @@ Code convention per standards in http://manning.com/mikowski
             CacheClear++;
 
             setTimeout( function () {
+              var bCounter, nc;
               if ( CacheClear >= settings.cacheSize * 2 ){
                 CacheClear = 0;
-                var bCounter = CacheCount - settings.cacheSize;
-                var nc = {};
+                bCounter = CacheCount - settings.cacheSize;
+                nc = {};
                 eachin( function ( r, k ) {
                   if ( r.i >= bCounter ){
                     nc[k] = r;
@@ -1496,8 +1518,8 @@ Code convention per standards in http://manning.com/mikowski
         // **************************************** 
         // ****************************************
         // *
-        // * iAPI is the the method collection valiable when a query has been started by calling dbname()
-        // * Certain methods are or are not avaliable once you have started a query such as insert (you can only insert into root)
+        // * iAPI is the the method collection valiable when a query has been started by calling dbname
+        // * Certain methods are or are not avaliable once you have started a query such as insert -- you can only insert into root
         // ****************************************
         iAPI = TAFFY.mergeObj( TAFFY.mergeObj( API, { insert : undefined } ),
           { getDBI  : function () { return DBI; },
@@ -1565,16 +1587,18 @@ Code convention per standards in http://manning.com/mikowski
       root.merge = function ( i, key, runEvent ) {
         var
           search      = {},
-          finalSearch = []
+          finalSearch = [],
+          obj         = {}
           ;
 
         runEvent    = runEvent || false;
         key         = key      || 'id';
 
         each( i, function ( o ) {
+          var existingObject;
           search[key] = o[key];
           finalSearch.push( o[key] );
-          var existingObject = root( search ).first();
+          existingObject = root( search ).first();
           if ( existingObject ){
             DBI.update( existingObject.___id, o, runEvent );
           }
@@ -1582,7 +1606,7 @@ Code convention per standards in http://manning.com/mikowski
             DBI.insert( o, runEvent );
           }
         });
-        var obj = {};
+
         obj[key] = finalSearch;
         return root( obj );
       };
@@ -1591,7 +1615,7 @@ Code convention per standards in http://manning.com/mikowski
       root.sort = DBI.sort;
       // ****************************************
       // *
-      // * These are the methods that can be accessed on off the root DB function. Example dbname.insert();
+      // * These are the methods that can be accessed on off the root DB function. Example dbname.insert;
       // **************************************** 
       root.settings = function ( n ) {
         // ****************************************
@@ -1610,7 +1634,7 @@ Code convention per standards in http://manning.com/mikowski
 
       // ****************************************
       // *
-      // * These are the methods that can be accessed on off the root DB function. Example dbname.insert();
+      // * These are the methods that can be accessed on off the root DB function. Example dbname.insert;
       // **************************************** 
       root.store = function ( n ) {
         // ****************************************
@@ -1618,10 +1642,10 @@ Code convention per standards in http://manning.com/mikowski
         // * Setup localstorage for this DB on a given name
         // * Pull data into the DB as needed
         // **************************************** 
-        var r = false;
+        var r = false, i;
         if ( localStorage ){
           if ( n ){
-            var i = localStorage.getItem( 'taffy_' + n );
+            i = localStorage.getItem( 'taffy_' + n );
             if ( i && i.length > 0 ){
               root.insert( i );
               r = true;
@@ -1811,9 +1835,9 @@ Code convention per standards in http://manning.com/mikowski
     // ****************************************
     TAFFY.hasAll = function ( var1, var2 ) {
 
-      var T = TAFFY;
+      var T = TAFFY, ar;
       if ( T.isArray( var2 ) ){
-        var ar = true;
+        ar = true;
         each( var2, function ( v ) {
           ar = T.has( var1, v );
           if ( ar === false ){
@@ -1920,21 +1944,26 @@ Code convention per standards in http://manning.com/mikowski
     // * Return true if obj is datatype, false otherwise
     // * Purpose: Used to determine if arguments are of certain data type
     // *
+    // * mmikowski 2012-08-06 refactored to make much less "magical":
+    // *   fewer closures and passes jslint
+    // *
     // ****************************************
 
-    (function ( ts ) {
-      var z;
-      for ( z = 0; z < ts.length; z++ ){
-        (function ( y ) {
-          TAFFY['is' + y] = function ( c ) {
-            return TAFFY.typeOf( c ) === y.toLowerCase() ? true : false;
-          };
-        }( ts[z] ));
-      }
-    }( ['String', 'Number', 'Object', 'Array',
-        'Boolean', 'Null', 'Function', 'Undefined'
-    ]));
-
+    typeList = [
+      'String',  'Number', 'Object',   'Array',
+      'Boolean', 'Null',   'Function', 'Undefined'
+    ];
+  
+    makeTest = function ( thisKey ) {
+      return function ( data ) {
+        return TAFFY.typeOf( data ) === thisKey.toLowerCase() ? true : false;
+      };
+    };
+  
+    for ( idx = 0; idx < typeList.length; idx++ ){
+      typeKey = typeList[idx];
+      TAFFY['is' + typeKey] = makeTest( typeKey );
+    }
   }
 }());
 
