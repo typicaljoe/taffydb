@@ -316,7 +316,8 @@ var TAFFY, exports, T;
                     ? mvalue.toLowerCase() === mtest.toLowerCase()
                       : mvalue === mtest) : (s === 'has')
                   ? (T.has( mvalue, mtest )) : (s === 'hasall')
-                  ? (T.hasAll( mvalue, mtest )) : (
+                  ? (T.hasAll( mvalue, mtest )) : (s === 'contains') 
+                  ? (TAFFY.isArray(mvalue) && mvalue.indexOf(mtest) > -1) : (
                     s.indexOf( 'is' ) === -1
                       && !TAFFY.isNull( mvalue )
                       && !TAFFY.isUndefined( mvalue )
