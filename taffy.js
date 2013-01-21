@@ -33,7 +33,9 @@ var TAFFY, exports, T;
     version,      TC,           idpad,  cmax,
     API,          protectJSON,  each,   eachin,
     isIndexable,  returnFilter, runFilters,
-    numcharsplit, orderByCol,   run
+    numcharsplit, orderByCol,   run,    intersection,
+    filter,       makeCid,      safeForJson,
+    isRegexp
     ;
 
 
@@ -61,7 +63,44 @@ var TAFFY, exports, T;
         return JSON.parse( t );
       }
     };
+    
+    // gracefully stolen from underscore.js
+    intersection = function(array1, array2) {
+        return filter(array1, function(item) {
+          return array2.indexOf(item) >= 0;
+        });
+    };
 
+    // gracefully stolen from underscore.js
+    filter = function(obj, iterator, context) {
+        var results = [];
+        if (obj == null) return results;
+        if (Array.prototype.filter && obj.filter === Array.prototype.filter) return obj.filter(iterator, context);
+        each(obj, function(value, index, list) {
+          if (iterator.call(context, value, index, list)) results[results.length] = value;
+        });
+        return results;
+    };
+    
+    isRegexp = function(aObj) {
+        return Object.prototype.toString.call(aObj)==='[object RegExp]';
+    }
+    
+    safeForJson = function(aObj) {
+        var myResult = T.isArray(aObj) ? [] : T.isObject(aObj) ? {} : null;
+        if(aObj===null) return aObj;
+        for(var i in aObj) {
+            myResult[i]  = isRegexp(aObj[i]) ? aObj[i].toString() : T.isArray(aObj[i]) || T.isObject(aObj[i]) ? safeForJson(aObj[i]) : aObj[i];
+        }
+        return myResult;
+    }
+    
+    makeCid = function(aContext) {
+        var myCid = JSON.stringify(aContext);
+        if(myCid.match(/regex/)===null) return myCid;
+        return JSON.stringify(safeForJson(aContext));
+    }
+    
     each = function ( a, fun, u ) {
       var r, i, x, y;
       // ****************************************
@@ -316,7 +355,8 @@ var TAFFY, exports, T;
                     ? mvalue.toLowerCase() === mtest.toLowerCase()
                       : mvalue === mtest) : (s === 'has')
                   ? (T.has( mvalue, mtest )) : (s === 'hasall')
-                  ? (T.hasAll( mvalue, mtest )) : (
+                  ? (T.hasAll( mvalue, mtest )) : (s === 'contains')
+                  ? (TAFFY.isArray(mvalue) && mvalue.indexOf(mtest) > -1) : (
                     s.indexOf( 'is' ) === -1
                       && !TAFFY.isNull( mvalue )
                       && !TAFFY.isUndefined( mvalue )
@@ -1402,7 +1442,7 @@ var TAFFY, exports, T;
               }
             });
             if ( cid === '' ){
-              cid = JSON.stringify( T.mergeObj( context,
+              cid = makeCid( T.mergeObj( context,
                 {q : false, run : false, sort : false} ) );
             }
           }
