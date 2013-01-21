@@ -1800,6 +1800,7 @@ var TAFFY, exports, T;
               });
             }
             else if ( T.isString( var2 ) || T.isNumber( var2 ) ){
+             re = false;
               for ( n = 0; n < var1.length; n++ ){
                 re = T.has( var1[n], var2 );
                 if ( re ){
