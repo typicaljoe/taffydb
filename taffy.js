@@ -1772,7 +1772,7 @@ var TAFFY, exports, T;
     // ****************************************
     TAFFY.has = function ( var1, var2 ) {
 
-      var re = true, n;
+      var re = false, n;
 
       if ( (var1.TAFFY) ){
         re = var1( var2 );
