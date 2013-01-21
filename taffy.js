@@ -807,7 +807,7 @@ var TAFFY, exports, T;
       run.call( that );
       each( arguments, function ( c ) {
         each( that.context().results, function ( r ) {
-          total = total + r[c];
+          total = total + (r[c] || 0);
         });
       });
       return total;
