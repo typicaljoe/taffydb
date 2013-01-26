@@ -1142,6 +1142,7 @@ var TAFFY, exports, T;
           onRemove          : false,
           onDBChange        : false,
           storageName       : false,
+          autoCommit        : true,
           forcePropertyCase : null,
           cacheSize         : 100,
           name              : ''
@@ -1233,7 +1234,7 @@ var TAFFY, exports, T;
               settings.onDBChange.call( TOb );
             }, 0 );
           }
-          if ( settings.storageName ){
+          if ( settings.storageName && settings.autoCommit ){
             setTimeout( function () {
               localStorage.setItem( 'taffy_' + settings.storageName,
                 JSON.stringify( TOb ) );
@@ -1636,7 +1637,7 @@ var TAFFY, exports, T;
       // *
       // * These are the methods that can be accessed on off the root DB function. Example dbname.insert;
       // **************************************** 
-      root.store = function ( n ) {
+      root.store = function ( n, callback ) {
         // ****************************************
         // *
         // * Setup localstorage for this DB on a given name
@@ -1651,15 +1652,21 @@ var TAFFY, exports, T;
               r = true;
             }
             if ( TOb.length > 0 ){
-              setTimeout( function () {
-                localStorage.setItem( 'taffy_' + settings.storageName,
-                  JSON.stringify( TOb ) );
-              });
+              root.commit( n );   
             }
+            if (callback) callback();
           }
           root.settings( {storageName : n} );
         }
         return root;
+      };
+
+      root.commit = function ( n, callback ) {
+        setTimeout( function () {
+          localStorage.setItem( 'taffy_' + settings.storageName,
+            JSON.stringify( TOb ) );
+          if (callback) callback();
+        });
       };
 
       // ****************************************
@@ -1970,4 +1977,3 @@ var TAFFY, exports, T;
 if ( typeof(exports) === 'object' ){
   exports.taffy = TAFFY;
 }
-
