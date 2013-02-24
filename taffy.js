@@ -320,7 +320,10 @@ var TAFFY, exports, T;
                   r
                   ;
 
-
+                if (typeof mvalue === 'undefined') {
+                  return false;
+                }
+                
                 if ( (s.indexOf( '!' ) === 0) && s !== bangeq &&
                   s !== bangeqeq )
                 {
