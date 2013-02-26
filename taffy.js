@@ -34,7 +34,11 @@ var TAFFY, exports, T;
     API,          protectJSON,  each,   eachin,
     isIndexable,  returnFilter, runFilters,
     numcharsplit, orderByCol,   run,    intersection,
+<<<<<<< HEAD
     filter,       makeCid,      safeForJson, 
+=======
+    filter,       makeCid,      safeForJson,
+>>>>>>> 2.7 commit. Massive list of bug fixes on updated provided by DanielRuf, mmikowski, japettyjohn, tomgutz, and lea-anthony
     isRegexp
     ;
 
@@ -43,7 +47,11 @@ var TAFFY, exports, T;
     // TC = Counter for Taffy DBs on page, used for unique IDs
     // cmax = size of charnumarray conversion cache
     // idpad = zeros to pad record IDs with
+<<<<<<< HEAD
     version = '2.6.2'; // proposed mmikowski 2012-08-06
+=======
+    version = '2.7'; 
+>>>>>>> 2.7 commit. Massive list of bug fixes on updated provided by DanielRuf, mmikowski, japettyjohn, tomgutz, and lea-anthony
     TC      = 1;
     idpad   = '000000';
     cmax    = 1000;
@@ -63,7 +71,7 @@ var TAFFY, exports, T;
         return JSON.parse( t );
       }
     };
-
+    
     // gracefully stolen from underscore.js
     intersection = function(array1, array2) {
         return filter(array1, function(item) {
@@ -72,6 +80,16 @@ var TAFFY, exports, T;
     };
 
     // gracefully stolen from underscore.js
+<<<<<<< HEAD
+    intersection = function(array1, array2) {
+        return filter(array1, function(item) {
+          return array2.indexOf(item) >= 0;
+        });
+    };
+
+    // gracefully stolen from underscore.js
+=======
+>>>>>>> 2.7 commit. Massive list of bug fixes on updated provided by DanielRuf, mmikowski, japettyjohn, tomgutz, and lea-anthony
     filter = function(obj, iterator, context) {
         var results = [];
         if (obj == null) return results;
@@ -320,7 +338,10 @@ var TAFFY, exports, T;
                   r
                   ;
 
-
+                if (typeof mvalue === 'undefined') {
+                  return false;
+                }
+                
                 if ( (s.indexOf( '!' ) === 0) && s !== bangeq &&
                   s !== bangeqeq )
                 {
@@ -355,7 +376,11 @@ var TAFFY, exports, T;
                     ? mvalue.toLowerCase() === mtest.toLowerCase()
                       : mvalue === mtest) : (s === 'has')
                   ? (T.has( mvalue, mtest )) : (s === 'hasall')
+<<<<<<< HEAD
                   ? (T.hasAll( mvalue, mtest )) : (s === 'contains') 
+=======
+                  ? (T.hasAll( mvalue, mtest )) : (s === 'contains')
+>>>>>>> 2.7 commit. Massive list of bug fixes on updated provided by DanielRuf, mmikowski, japettyjohn, tomgutz, and lea-anthony
                   ? (TAFFY.isArray(mvalue) && mvalue.indexOf(mtest) > -1) : (
                     s.indexOf( 'is' ) === -1
                       && !TAFFY.isNull( mvalue )
@@ -847,7 +872,7 @@ var TAFFY, exports, T;
       run.call( that );
       each( arguments, function ( c ) {
         each( that.context().results, function ( r ) {
-          total = total + r[c];
+          total = total + (r[c] || 0);
         });
       });
       return total;
@@ -1011,6 +1036,7 @@ var TAFFY, exports, T;
 
                   if ( !is_ok ){ break CONDITION; } // short circuit
                 }
+<<<<<<< HEAD
 
               if ( is_ok ){
                 result_list.push( fnCombineRow( left_row, right_row ) );
@@ -1023,6 +1049,20 @@ var TAFFY, exports, T;
         return fnMain;
       }());
 
+=======
+
+              if ( is_ok ){
+                result_list.push( fnCombineRow( left_row, right_row ) );
+              }
+            } );
+          } );
+          return TAFFY( result_list )();
+        };
+
+        return fnMain;
+      }());
+
+>>>>>>> 2.7 commit. Massive list of bug fixes on updated provided by DanielRuf, mmikowski, japettyjohn, tomgutz, and lea-anthony
       API.extend( 'join', innerJoinFunction );
     }());
 
@@ -1772,7 +1812,7 @@ var TAFFY, exports, T;
     // ****************************************
     TAFFY.has = function ( var1, var2 ) {
 
-      var re = true, n;
+      var re = false, n;
 
       if ( (var1.TAFFY) ){
         re = var1( var2 );
@@ -1840,7 +1880,11 @@ var TAFFY, exports, T;
               });
             }
             else if ( T.isString( var2 ) || T.isNumber( var2 ) ){
+<<<<<<< HEAD
               re = false;
+=======
+             re = false;
+>>>>>>> 2.7 commit. Massive list of bug fixes on updated provided by DanielRuf, mmikowski, japettyjohn, tomgutz, and lea-anthony
               for ( n = 0; n < var1.length; n++ ){
                 re = T.has( var1[n], var2 );
                 if ( re ){
