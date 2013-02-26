@@ -64,7 +64,7 @@ Use JSON to compare:
 View more docs and examples, get support, and get notified of updates:
 
 Web: http://taffydb.com
-Twitter: http://twitter.com/mriansmith 
+Twitter: http://twitter.com/biastoact 
 
 
 ## Software License Agreement (BSD License)
