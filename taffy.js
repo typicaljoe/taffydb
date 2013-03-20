@@ -2009,6 +2009,7 @@ TAFFY = (function (TAFFY) {
       TAFFY['is' + typeKey] = makeTest( typeKey );
     }
   }
+  return TAFFY;
 }(TAFFY));
 
 if ( typeof(exports) === 'object' ){
