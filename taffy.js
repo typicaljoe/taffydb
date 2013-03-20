@@ -26,7 +26,7 @@
 
 // Setup TAFFY name space to return an object with methods
 var TAFFY, exports, T;
-(function () {
+TAFFY = (function (TAFFY) {
   'use strict';
   var
     typeList,     makeTest,     idx,    typeKey,
@@ -2009,7 +2009,8 @@ var TAFFY, exports, T;
       TAFFY['is' + typeKey] = makeTest( typeKey );
     }
   }
-}());
+  return TAFFY;
+}(TAFFY));
 
 if ( typeof(exports) === 'object' ){
   exports.taffy = TAFFY;
