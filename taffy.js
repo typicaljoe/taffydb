@@ -1186,6 +1186,7 @@ var TAFFY, exports, T;
           onDBChange        : false,
           storageName       : false,
           forcePropertyCase : null,
+          delayDiskUpdates  : 0,
           cacheSize         : 100,
           name              : ''
         },
@@ -1276,13 +1277,32 @@ var TAFFY, exports, T;
               settings.onDBChange.call( TOb );
             }, 0 );
           }
-          if ( settings.storageName ){
-            setTimeout( function () {
-              localStorage.setItem( 'taffy_' + settings.storageName,
-                JSON.stringify( TOb ) );
-            });
+          if (settings.delayDiskUpdates === 0)
+          {
+            if ( settings.storageName ){
+              setTimeout( function () {
+                localStorage.setItem( 'taffy_' + settings.storageName,
+                  JSON.stringify( TOb ) );
+              });
+            }
           }
           return dm;
+        },
+        delayDiskUpdates: function ( ) {
+          settings.delayDiskUpdates++;
+        },
+        flushDiskUpdates: function ( ) {
+          settings.delayDiskUpdates--;
+
+          if (settings.delayDiskUpdates === 0)
+          {
+            if ( settings.storageName ){
+              setTimeout( function () {
+                localStorage.setItem( 'taffy_' + settings.storageName,
+                  JSON.stringify( TOb ) );
+              });
+            }
+          }
         },
         insert       : function ( i, runEvent ) {
           // ****************************************
@@ -1626,6 +1646,10 @@ var TAFFY, exports, T;
 
 
       root.insert = DBI.insert;
+
+      root.delayDiskUpdates = DBI.delayDiskUpdates;
+
+      root.flushDiskUpdates = DBI.flushDiskUpdates;
 
       root.merge = function ( i, key, runEvent ) {
         var
