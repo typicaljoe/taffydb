@@ -24,11 +24,25 @@
 
 // BUILD 193d48d, modified by mmikowski to pass jslint
 
-// Setup TAFFY name space to return an object with methods
-var TAFFY, exports, T;
-(function () {
+(function ( global, factory ){
+  // CommonJS
+  if ( typeof exports === 'object' ) {
+    exports.taffy = factory();
+
+  // AMD
+  } else if ( typeof define === 'function' && define.amd ) {
+    define( factory );
+
+  // Browser globals
+  } else {
+    global.TAFFY = factory();
+  }
+}( this, function(){
   'use strict';
-  var
+
+  // Setup TAFFY name space to return an object with methods
+  var TAFFY, T,
+
     typeList,     makeTest,     idx,    typeKey,
     version,      TC,           idpad,  cmax,
     API,          protectJSON,  each,   eachin,
@@ -55,7 +69,7 @@ var TAFFY, exports, T;
       // * Takes: a variable
       // * Returns: the variable if object/array or the parsed variable if JSON
       // *
-      // ****************************************  
+      // ****************************************
       if ( TAFFY.isArray( t ) || TAFFY.isObject( t ) ){
         return t;
       }
@@ -63,7 +77,7 @@ var TAFFY, exports, T;
         return JSON.parse( t );
       }
     };
-    
+
     // gracefully stolen from underscore.js
     intersection = function(array1, array2) {
         return filter(array1, function(item) {
@@ -81,11 +95,11 @@ var TAFFY, exports, T;
         });
         return results;
     };
-    
+
     isRegexp = function(aObj) {
         return Object.prototype.toString.call(aObj)==='[object RegExp]';
     }
-    
+
     safeForJson = function(aObj) {
         var myResult = T.isArray(aObj) ? [] : T.isObject(aObj) ? {} : null;
         if(aObj===null) return aObj;
@@ -94,13 +108,13 @@ var TAFFY, exports, T;
         }
         return myResult;
     }
-    
+
     makeCid = function(aContext) {
         var myCid = JSON.stringify(aContext);
         if(myCid.match(/regex/)===null) return myCid;
         return JSON.stringify(safeForJson(aContext));
     }
-    
+
     each = function ( a, fun, u ) {
       var r, i, x, y;
       // ****************************************
@@ -113,7 +127,7 @@ var TAFFY, exports, T;
       //   False: skip. Default False;
       // * Purpose: Used to loop over arrays
       // *
-      // ****************************************  
+      // ****************************************
       if ( a && ((T.isArray( a ) && a.length === 1) || (!T.isArray( a ))) ){
         fun( (T.isArray( a )) ? a[0] : a, 0 );
       }
@@ -141,7 +155,7 @@ var TAFFY, exports, T;
       // * f = a function
       // * Purpose: Used to loop over objects
       // *
-      // ****************************************  
+      // ****************************************
       var x = 0, r, i;
 
       for ( i in o ){
@@ -161,7 +175,7 @@ var TAFFY, exports, T;
       // * Takes: method name, function
       // * Purpose: Add a custom method to the API
       // *
-      // ****************************************  
+      // ****************************************
       API[m] = function () {
         return f.apply( this, arguments );
       };
@@ -243,7 +257,7 @@ var TAFFY, exports, T;
       // * Returns: a filter function
       // * Purpose: Take a filter object and return a function that can be used to compare
       // * a TaffyDB record to see if the record matches a query
-      // ****************************************  
+      // ****************************************
       var nf = [];
       if ( T.isString( f ) && /[t][0-9]*[r][0-9]*/i.test( f ) ){
         f = { ___id : f };
@@ -323,7 +337,7 @@ var TAFFY, exports, T;
                 if (typeof mvalue === 'undefined') {
                   return false;
                 }
-                
+
                 if ( (s.indexOf( '!' ) === 0) && s !== bangeq &&
                   s !== bangeqeq )
                 {
@@ -545,7 +559,7 @@ var TAFFY, exports, T;
     // * Takes: a string containing numbers and letters and turn it into an array
     // * Returns: return an array of numbers and letters
     // * Purpose: Used for logical sorting. String Example: 12ABC results: [12,'ABC']
-    // **************************************** 
+    // ****************************************
     (function () {
       // creates a cache for numchar conversions
       var cache = {}, cachcounter = 0;
@@ -607,7 +621,7 @@ var TAFFY, exports, T;
     // ****************************************
     // *
     // * Runs a query
-    // **************************************** 
+    // ****************************************
 
 
     run = function () {
@@ -623,7 +637,7 @@ var TAFFY, exports, T;
       // * Takes: takes unlimited filter objects as arguments
       // * Returns: method collection
       // * Purpose: Take filters as objects and cache functions for later lookup when a query is run
-      // **************************************** 
+      // ****************************************
       var
         nc = TAFFY.mergeObj( this.context(), { run : null } ),
         nq = []
@@ -665,7 +679,7 @@ var TAFFY, exports, T;
       // *
       // * Purpose: takes a limit number to limit the number of rows returned by a query. Will update the results
       // * of a query
-      // **************************************** 
+      // ****************************************
       var nc = TAFFY.mergeObj( this.context(), {}),
         limitedresults
         ;
@@ -691,7 +705,7 @@ var TAFFY, exports, T;
       // *
       // * Purpose: takes a limit number to limit the number of rows returned by a query. Will update the results
       // * of a query
-      // **************************************** 
+      // ****************************************
       var nc = TAFFY.mergeObj( this.context(), {} ),
         limitedresults
         ;
@@ -718,7 +732,7 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * Takes: a object and passes it off DBI update method for all matched records
-      // **************************************** 
+      // ****************************************
       var runEvent = true, o = {}, args = arguments, that;
       if ( TAFFY.isString( arg0 ) &&
         (arguments.length === 2 || arguments.length === 3) )
@@ -760,7 +774,7 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * Purpose: removes records from the DB via the remove and removeCommit DBI methods
-      // **************************************** 
+      // ****************************************
       var that = this, c = 0;
       run.call( this );
       each( this.context().results, function ( r ) {
@@ -782,7 +796,7 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * Returns: The length of a query result
-      // **************************************** 
+      // ****************************************
       run.call( this );
       return this.context().results.length;
     });
@@ -792,7 +806,7 @@ var TAFFY, exports, T;
       // *
       // * Returns null;
       // * Runs a function on return of run.call
-      // **************************************** 
+      // ****************************************
       if ( f ){
         var that = this;
         setTimeout( function () {
@@ -809,7 +823,7 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * Returns: An array of all matching records
-      // **************************************** 
+      // ****************************************
       run.call( this );
       return this.context().results;
     });
@@ -818,14 +832,14 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * Returns: An JSON string of all matching records
-      // **************************************** 
+      // ****************************************
       return JSON.stringify( this.get() );
     });
     API.extend( 'first', function () {
       // ****************************************
       // *
       // * Returns: The first matching record
-      // **************************************** 
+      // ****************************************
       run.call( this );
       return this.context().results[0] || false;
     });
@@ -833,7 +847,7 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * Returns: The last matching record
-      // **************************************** 
+      // ****************************************
       run.call( this );
       return this.context().results[this.context().results.length - 1] ||
         false;
@@ -845,7 +859,7 @@ var TAFFY, exports, T;
       // *
       // * Takes: column to sum up
       // * Returns: Sums the values of a column
-      // **************************************** 
+      // ****************************************
       var total = 0, that = this;
       run.call( that );
       each( arguments, function ( c ) {
@@ -861,7 +875,7 @@ var TAFFY, exports, T;
       // *
       // * Takes: column to find min
       // * Returns: the lowest value
-      // **************************************** 
+      // ****************************************
       var lowest = null;
       run.call( this );
       each( this.context().results, function ( r ) {
@@ -1051,7 +1065,7 @@ var TAFFY, exports, T;
       // * Takes: columns to select values into an array
       // * Returns: array of values
       // * Note if more than one column is given an array of arrays is returned
-      // **************************************** 
+      // ****************************************
 
       var ra = [], args = arguments;
       run.call( this );
@@ -1079,7 +1093,7 @@ var TAFFY, exports, T;
       // * Takes: columns to select unique alues into an array
       // * Returns: array of values
       // * Note if more than one column is given an array of arrays is returned
-      // **************************************** 
+      // ****************************************
       var ra = [], args = arguments;
       run.call( this );
       if ( arguments.length === 1 ){
@@ -1128,7 +1142,7 @@ var TAFFY, exports, T;
       // *
       // * Takes: a string template formated with key to be replaced with values from the rows, flag to determine if we want array of strings
       // * Returns: array of values or a string
-      // **************************************** 
+      // ****************************************
       var ra = [];
       run.call( this );
       each( this.context().results, function ( r ) {
@@ -1147,7 +1161,7 @@ var TAFFY, exports, T;
       // *
       // * Takes: a function
       // * Purpose: loops over every matching record and applies the function
-      // **************************************** 
+      // ****************************************
       run.call( this );
       each( this.context().results, m );
       return this;
@@ -1157,7 +1171,7 @@ var TAFFY, exports, T;
       // *
       // * Takes: a function
       // * Purpose: loops over every matching record and applies the function, returing the results in an array
-      // **************************************** 
+      // ****************************************
       var ra = [];
       run.call( this );
       each( this.context().results, function ( r ) {
@@ -1174,7 +1188,7 @@ var TAFFY, exports, T;
       // * T is the main TAFFY object
       // * Takes: an array of objects or JSON
       // * Returns a new TAFFYDB
-      // **************************************** 
+      // ****************************************
       var TOb = [],
         ID = {},
         RC = 1,
@@ -1206,7 +1220,7 @@ var TAFFY, exports, T;
       // * settings.onRemove = event given the removed record
       // * settings.forcePropertyCase = on insert force the proprty case to be lower or upper. default lower, null/undefined will leave case as is
       // * dm = the modify date of the database, used for query caching
-      // **************************************** 
+      // ****************************************
 
 
       runIndexes = function ( indexes ) {
@@ -1214,7 +1228,7 @@ var TAFFY, exports, T;
         // *
         // * Takes: a collection of indexes
         // * Returns: collection with records matching indexed filters
-        // **************************************** 
+        // ****************************************
 
         var records = [], UniqueEnforce = false;
 
@@ -1258,13 +1272,13 @@ var TAFFY, exports, T;
         // ****************************************
         // *
         // * The DBI is the internal DataBase Interface that interacts with the data
-        // **************************************** 
+        // ****************************************
         dm           : function ( nd ) {
           // ****************************************
           // *
           // * Takes: an optional new modify date
           // * Purpose: used to get and set the DB modify date
-          // **************************************** 
+          // ****************************************
           if ( nd ){
             dm = nd;
             Cache = {};
@@ -1289,7 +1303,7 @@ var TAFFY, exports, T;
           // *
           // * Takes: a new record to insert
           // * Purpose: merge the object with the template, add an ID, insert into DB, call insert event
-          // **************************************** 
+          // ****************************************
           var columns = [],
             records   = [],
             input     = protectJSON( i )
@@ -1349,7 +1363,7 @@ var TAFFY, exports, T;
           // ****************************************
           // *
           // * Purpose: Change the sort order of the DB itself and reset the ID bucket
-          // **************************************** 
+          // ****************************************
           TOb = orderByCol( TOb, o.split( ',' ) );
           ID = {};
           each( TOb, function ( r, i ) {
@@ -1401,14 +1415,14 @@ var TAFFY, exports, T;
           // *
           // * Takes: the ID of record to be removed
           // * Purpose: remove a record, changes its ___s value to false
-          // **************************************** 
+          // ****************************************
           TOb[ID[id]].___s = false;
         },
         removeCommit : function ( runEvent ) {
           var x;
           // ****************************************
           // *
-          // * 
+          // *
           // * Purpose: loop over all records and remove records with ___s = false, call onRemove event, clear ID
           // ****************************************
           for ( x = TOb.length - 1; x > -1; x-- ){
@@ -1433,7 +1447,7 @@ var TAFFY, exports, T;
           // ****************************************
           // *
           // * Takes: the context object for a query and either returns a cache result or a new query result
-          // **************************************** 
+          // ****************************************
           var returnq, cid, results, indexed, limitq, ni;
 
           if ( settings.cacheSize ) {
@@ -1558,7 +1572,7 @@ var TAFFY, exports, T;
         // *
         // * The root function that gets returned when a new DB is created
         // * Takes: unlimited filter arguments and creates filters to be run when a query is called
-        // **************************************** 
+        // ****************************************
         // ****************************************
         // *
         // * iAPI is the the method collection valiable when a query has been started by calling dbname
@@ -1571,7 +1585,7 @@ var TAFFY, exports, T;
             // ****************************************
             // *
             // * The context contains all the information to manage a query including filters, limits, and sorts
-            // **************************************** 
+            // ****************************************
             if ( n ){
               context = TAFFY.mergeObj( context,
                 n.hasOwnProperty('results')
@@ -1599,7 +1613,7 @@ var TAFFY, exports, T;
         // ****************************************
         // *
         // * Call the query method to setup a new query
-        // **************************************** 
+        // ****************************************
         each( arguments, function ( f ) {
 
           if ( isIndexable( f ) ){
@@ -1618,7 +1632,7 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * If new records have been passed on creation of the DB either as JSON or as an array/object, insert them
-      // **************************************** 
+      // ****************************************
       TC++;
       if ( d ){
         DBI.insert( d );
@@ -1659,12 +1673,12 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * These are the methods that can be accessed on off the root DB function. Example dbname.insert;
-      // **************************************** 
+      // ****************************************
       root.settings = function ( n ) {
         // ****************************************
         // *
         // * Getting and setting for this DB's settings/events
-        // **************************************** 
+        // ****************************************
         if ( n ){
           settings = TAFFY.mergeObj( settings, n );
           if ( n.template ){
@@ -1678,13 +1692,13 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * These are the methods that can be accessed on off the root DB function. Example dbname.insert;
-      // **************************************** 
+      // ****************************************
       root.store = function ( n ) {
         // ****************************************
         // *
         // * Setup localstorage for this DB on a given name
         // * Pull data into the DB as needed
-        // **************************************** 
+        // ****************************************
         var r = false, i;
         if ( localStorage ){
           if ( n ){
@@ -1708,13 +1722,13 @@ var TAFFY, exports, T;
       // ****************************************
       // *
       // * Return root on DB creation and start having fun
-      // **************************************** 
+      // ****************************************
       return root;
     };
     // ****************************************
     // *
     // * Sets the global TAFFY object
-    // **************************************** 
+    // ****************************************
     TAFFY = T;
 
 
@@ -1722,21 +1736,21 @@ var TAFFY, exports, T;
     // *
     // * Create public each method
     // *
-    // ****************************************   
+    // ****************************************
     T.each = each;
 
     // ****************************************
     // *
     // * Create public eachin method
     // *
-    // ****************************************   
+    // ****************************************
     T.eachin = eachin;
     // ****************************************
     // *
     // * Create public extend method
     // * Add a custom method to the API
     // *
-    // ****************************************   
+    // ****************************************
     T.extend = API.extend;
 
 
@@ -1744,7 +1758,7 @@ var TAFFY, exports, T;
     // *
     // * Creates TAFFY.EXIT value that can be returned to stop an each loop
     // *
-    // ****************************************  
+    // ****************************************
     TAFFY.EXIT = 'TAFFYEXIT';
 
     // ****************************************
@@ -1755,7 +1769,7 @@ var TAFFY, exports, T;
     // * obj1
     // * Purpose: Used to combine objs
     // *
-    // ****************************************   
+    // ****************************************
     TAFFY.mergeObj = function ( ob1, ob2 ) {
       var c = {};
       eachin( ob1, function ( v, n ) { c[n] = ob1[n]; });
@@ -1924,7 +1938,7 @@ var TAFFY, exports, T;
     // * Returns an array of an objects keys
     // * Purpose: Used to get the keys for an object
     // *
-    // ****************************************   
+    // ****************************************
     TAFFY.getObjectKeys = function ( ob ) {
       var kA = [];
       eachin( ob, function ( n, h ) {
@@ -1940,7 +1954,7 @@ var TAFFY, exports, T;
     // * Returns an array of an objects keys
     // * Purpose: Used to get the keys for an object
     // *
-    // ****************************************   
+    // ****************************************
     TAFFY.isSameArray = function ( ar1, ar2 ) {
       return (TAFFY.isArray( ar1 ) && TAFFY.isArray( ar2 ) &&
         ar1.join( ',' ) === ar2.join( ',' )) ? true : false;
@@ -1953,7 +1967,7 @@ var TAFFY, exports, T;
     // * material or false if they do not
     // * Purpose: Used to comare objects
     // *
-    // ****************************************   
+    // ****************************************
     TAFFY.isSameObject = function ( ob1, ob2 ) {
       var T = TAFFY, rv = true;
 
@@ -1997,21 +2011,18 @@ var TAFFY, exports, T;
       'String',  'Number', 'Object',   'Array',
       'Boolean', 'Null',   'Function', 'Undefined'
     ];
-  
+
     makeTest = function ( thisKey ) {
       return function ( data ) {
         return TAFFY.typeOf( data ) === thisKey.toLowerCase() ? true : false;
       };
     };
-  
+
     for ( idx = 0; idx < typeList.length; idx++ ){
       typeKey = typeList[idx];
       TAFFY['is' + typeKey] = makeTest( typeKey );
     }
   }
-}());
 
-if ( typeof(exports) === 'object' ){
-  exports.taffy = TAFFY;
-}
-
+  return TAFFY;
+}));

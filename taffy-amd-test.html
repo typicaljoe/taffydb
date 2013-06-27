@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>taffy AMD test</title>
+
+  <!-- AMD loader -->
+  <script src="https://raw.github.com/jrburke/requirejs/master/require.js"></script>
+
+  <script>
+  require( [ "taffy" ], function( TAFFY ){
+
+  /*jslint         browser : true, continue : true,
+    devel  : true, indent  : 2,    maxerr   : 50,
+    newcap : true, nomen   : true, plusplus : true,
+    regexp : true, sloppy  : true, vars     : false,
+    white  : true
+  */
+
+  /*global TAFFY */
+  var getVarType, runTests, getFriendList;
+
+  // Begin public utility /getVarType/
+  // Returns 'Function', 'Object', 'Array',
+  // 'String', 'Number', 'Boolean', or 'Undefined',
+  getVarType = function ( data ) {
+    if (undefined === data ){ return 'Undefined'; }
+    if (data === null ){ return 'Null'; }
+    return {}.toString.call(data).slice(8, -1);
+  };
+  // End public utility /getVarType/
+
+  // Begin recursive object compare for future use
+  Object.prototype.equals = function ( x ) {
+    var p, var_type, var_type_x, self = this;
+
+    for ( p in self ) {
+      if ( self.hasOwnProperty( p ) ) {
+        var_type = getVarType( p );
+        if ( var_type === 'Undefined') {
+          return false;
+        }
+      }
+    }
+
+    for ( p in self ) {
+      if ( self.hasOwnProperty( p ) ) {
+        if ( self[ p ] ) {
+          var_type = getVarType( self[ p ] );
+          switch( var_type ) {
+            case 'Function':
+              var_type_x = getVarType( x[ p ] );
+              if ( var_type === 'Undefined' ||
+                ( p !== 'equals'
+                  && self[ p ].toString() !== x[p].toString()
+              )){
+                return false;
+              }
+              break;
+            case 'Array' :
+            case 'Object':
+              if ( ! self[ p ].equals( x[ p ] )) {
+                return false;
+              }
+            break;
+            default:
+              if (self[ p ] !== x[ p ] ) {
+                return false;
+              }
+          }
+        }
+        else {
+          if ( x[ p ] ){
+            return false;
+          }
+        }
+      }
+    }
+
+    for ( p in x ) {
+      if ( x.hasOwnProperty( p ) ){
+        var_type = getVarType( self[ p ] );
+        if ( var_type === 'Undefined' ) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+  // End recursive object compare for future use
+
+  // Begin getFriendList
+
+  getFriendList = function () {
+    return [
+      {"id":1,"gender":"M","first":"John","last":"Smith",
+        "city":"Seattle, WA","status":"Active"},
+      {"id":2,"gender":"F","first":"Kelly","last":"Ruth",
+        "city":"Dallas, TX","status":"Active"},
+      {"id":3,"gender":"M","first":"Jeff","last":"Stevenson",
+        "city":"Washington, D.C.","status":"Active"},
+      {"id":4,"gender":"F","first":"Jennifer","last":"Gill",
+        "city":"Seattle, WA","status":"Active"}
+    ];
+  };
+
+  // End getFriendList
+
+  // Begin runTests
+  runTests = function () {
+    var
+      friend_db, taffy_map,
+      key_name, data_val, msg_text, var_type;
+
+    friend_db = TAFFY( getFriendList() );
+
+    taffy_map = {
+      by_city         : friend_db({ city : "Seattle, WA"}),
+      by_id           : friend_db({ id : 1}),
+      by_id_f         : friend_db({ id : '1'}),
+      by_name         : friend_db({ first : 'John',last:'Smith'}),
+      kelly_by_id     : friend_db({ id : 2}).first(),
+      kelly_last_name : friend_db({ id : 2}).first().last,
+      id_list         : friend_db().select( 'id' ),
+      city_list       : friend_db().distinct( 'city' ),
+      filter_list     : friend_db().filter({ city : "Seattle, WA"})
+    };
+
+    for ( key_name in taffy_map ){
+      if ( taffy_map.hasOwnProperty( key_name ) ) {
+        data_val = taffy_map[ key_name ];
+        var_type = getVarType( data_val );
+        msg_text = key_name + ': \n ===================\n';
+
+        switch ( var_type ){
+          case 'Object'   :
+            if ( data_val.hasOwnProperty( 'get' ) ){
+              msg_text += JSON.stringify( data_val.get() );
+            }
+            else {
+              msg_text += JSON.stringify( data_val );
+            }
+            break;
+          case 'Number' :
+            msg_text += String( data_val );
+            break;
+
+          default :
+            msg_text += JSON.stringify( data_val );
+        }
+
+        msg_text += '\n\n';
+
+        console.log( msg_text );
+      }
+    }
+
+    console.log( 'Example filter bug - rows changed without using '
+      + '.update() will filter by their original values. '
+    );
+    friend_db().each(function ( row_map, idx ) {
+      if ( row_map.city === 'Seattle, WA' ){
+        row_map.city = 'WallaWalla, WA';
+      }
+    });
+
+    console.log( 'We expect 0 rows, but get 2... ' );
+    console.log(
+      friend_db().filter({ city : 'Seattle, WA'}).get()
+    );
+    console.log( '...even though the city has changed in the collection.' );
+    console.log( friend_db().get() );
+    console.log( '' );
+
+    console.log( 'Example filter when .update() is used.');
+    friend_db = TAFFY( getFriendList() );
+
+    friend_db({ city : 'Seattle, WA' })
+      .update({ city : 'WallaWalla, WA' });
+
+    console.log( 'now we get the correct response (0 rows) ...' );
+    console.log(
+      friend_db().filter({ city : 'Seattle, WA'}).get()
+    );
+    console.log( friend_db().get() );
+    console.log( '... that reflects the taffy collection.' );
+  };
+  // End runTests
+
+  runTests();
+  });
+  </script>
+</head>
+<body>
+<div>
+Please open your javascript console to see test results
+</div>
+</body>
+</html>
