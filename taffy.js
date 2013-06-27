@@ -57,7 +57,7 @@
     // TC = Counter for Taffy DBs on page, used for unique IDs
     // cmax = size of charnumarray conversion cache
     // idpad = zeros to pad record IDs with
-    version = '2.7.1';
+    version = '2.7.3';
     TC      = 1;
     idpad   = '000000';
     cmax    = 1000;
