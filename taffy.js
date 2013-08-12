@@ -25,10 +25,24 @@
 // BUILD 193d48d, modified by mmikowski to pass jslint
 
 // Setup TAFFY name space to return an object with methods
-var TAFFY, exports, T;
-TAFFY = (function (TAFFY) {
-  'use strict';
-  var
+TAFFY = (function ( TAFFY, factory ){
+// CommonJS
+if ( typeof exports === 'object' ) {
+exports.TAFFY = factory();
+
+// AMD
+} else if ( typeof define === 'function' && define.amd ) {
+define( factory );
+
+// Browser globals
+} else {
+TAFFY = factory();
+}
+}( this, function(){
+   'use strict';
+
+// Setup TAFFY name space to return an object with methods
+var TAFFY, T,
     typeList,     makeTest,     idx,    typeKey,
     version,      TC,           idpad,  cmax,
     API,          protectJSON,  each,   eachin,
@@ -2030,8 +2044,3 @@ TAFFY = (function (TAFFY) {
   }
   return TAFFY;
 }(TAFFY));
-
-if ( typeof(exports) === 'object' ){
-  exports.taffy = TAFFY;
-}
-
