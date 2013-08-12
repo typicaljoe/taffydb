@@ -290,7 +290,7 @@ var TAFFY, exports, T;
             var c = [], looper;
 
             // function to loop and apply filter
-            looper = (s === 'hasAll') ?
+            looper = (s === 'hasAll' || s.toString().toLowerCase().indexOf('in')!==-1) ?
               function ( mtest, func ) {
                 func( mtest );
               } : each;
@@ -358,7 +358,8 @@ var TAFFY, exports, T;
                     ? mvalue.toLowerCase() === mtest.toLowerCase()
                       : mvalue === mtest) : (s === 'has')
                   ? (T.has( mvalue, mtest )) : (s === 'hasall')
-                  ? (T.hasAll( mvalue, mtest )) : (s === 'contains')
+                  ? (T.hasAll( mvalue, mtest )) : (s === 'in')
+                  ? (TAFFY.isArray(mtest) && mtest.indexOf(mvalue) > -1) : (s === 'contains')
                   ? (TAFFY.isArray(mvalue) && mvalue.indexOf(mtest) > -1) : (
                     s.indexOf( 'is' ) === -1
                       && !TAFFY.isNull( mvalue )
