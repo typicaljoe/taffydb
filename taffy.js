@@ -445,18 +445,27 @@ var TAFFY, exports, T;
 
       var sortFunc = function ( a, b ) {
         // function to pass to the native array.sort to sort an array
-        var r = 0;
+        var r = 0, collator;
+        try {
+	      collator = new Intl.Collator("generic", {sensitivity: "base"})
+		} catch (e) {
+		  collator = null;
+		}
 
         T.each( o, function ( sd ) {
           // loop over the sort instructions
           // get the column name
-          var o, col, dir, c, d;
+          var o, col, dir, c, d, lcomp;
           o = sd.split( ' ' );
           col = o[0];
 
           // get the direction
           dir = (o.length === 1) ? "logical" : o[1];
-
+		  
+          if (dir === 'intl') {
+			if (collator === null) dir = 'logical';
+			else lcomp = collator.compare(a[col], b[col]);
+          }
 
           if ( dir === 'logical' ){
             // if dir is logical than grab the charnum arrays for the two values we are looking at
@@ -511,6 +520,10 @@ var TAFFY, exports, T;
             r = 1;
             return T.EXIT;
 
+          }
+          else if ( dir === 'intl' && lcomp != 0 ){
+	        r = lcomp;
+	        return T.EXIT;
           }
           // if r is still 0 and we are doing a logical sort than look to see if one array is longer than the other
           if ( r === 0 && dir === 'logical' && c.length < d.length ){
