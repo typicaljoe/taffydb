@@ -1,19 +1,19 @@
 # TaffyDB (taffy.js)
 
-TaffyDB is an opensouce library that brings database features into your JavaScript applications.
+TaffyDB is an open souce library that brings database features to your JavaScript applications.
 
 ## Introduction
 
-How you ever noticed how JavaScript object literals look a lot like records? And that if you wrap a group of them up in an array you have something that atcs a lot like a database table? TaffyDB brings powerful database funtionality to that concept and rapidly improves the way you work with data inside of JavaScript.
+Have you ever noticed how JavaScript object literals look a lot like records? And that if you wrap a group of them up in an array you have something that looks a lot like a database table? TaffyDB brings powerful database functionality to that concept and rapidly improves the way you work with data inside of JavaScript.
 
 ## What makes it sticky
 
  - Extremely fast
  - Powerful JavaScript centric data selection engine
- - Database inspired features such as insert, update, unique, count, etc
- - Robust cross browser support
+ - Database inspired features such as insert, update, unique, count, etc.
+ - Robust cross-browser support
  - Easily extended with your own functions
- - Compatible with any DOM library (jQuery, YUI, Dojo, etc)
+ - Compatible with any DOM library (jQuery, YUI, Dojo, etc.)
 
 ## Create a DB
 
