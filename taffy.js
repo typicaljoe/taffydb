@@ -25,24 +25,12 @@
 // BUILD 193d48d, modified by mmikowski to pass jslint
 
 // Setup TAFFY name space to return an object with methods
-TAFFY = (function ( TAFFY, factory ){
-// CommonJS
-if ( typeof exports === 'object' ) {
-exports.TAFFY = factory();
-
-// AMD
-} else if ( typeof define === 'function' && define.amd ) {
-define( factory );
-
-// Browser globals
-} else {
-TAFFY = factory();
-}
-}( this, function(){
+var TAFFY, T;
+(function ( ){
    'use strict';
 
 // Setup TAFFY name space to return an object with methods
-var TAFFY, T,
+var 
     typeList,     makeTest,     idx,    typeKey,
     version,      TC,           idpad,  cmax,
     API,          protectJSON,  each,   eachin,
@@ -1307,30 +1295,31 @@ var TAFFY, T,
             }, 0 );
           }
           if (settings.delayDiskUpdates === 0)
-         {
+          {
            if ( settings.storageName ){
             setTimeout( function () {
                try { localStorage.setItem( 'taffy_' + settings.storageName, JSON.stringify( TOb ) ); } catch(Exception) {}
             });
-          }
+           }
+		  }
           return dm;
         },
         delayDiskUpdates: function ( ) {
-+          settings.delayDiskUpdates++;
-+        },
-+        flushDiskUpdates: function ( ) {
-+          settings.delayDiskUpdates--;
-+
-+          if (settings.delayDiskUpdates === 0)
-+          {
-+            if ( settings.storageName ){
-+              setTimeout( function () {
-+                localStorage.setItem( 'taffy_' + settings.storageName,
-+                  JSON.stringify( TOb ) );
-+              });
-+            }
-+          }
-+        },
+          settings.delayDiskUpdates++;
+        },
+        flushDiskUpdates: function ( ) {
+          settings.delayDiskUpdates--;
+
+          if (settings.delayDiskUpdates === 0)
+          {
+            if ( settings.storageName ){
+              setTimeout( function () {
+                localStorage.setItem( 'taffy_' + settings.storageName,
+                  JSON.stringify( TOb ) );
+              });
+            }
+          }
+        },
         insert       : function ( i, runEvent ) {
           // ****************************************
           // *
@@ -1744,7 +1733,7 @@ var TAFFY, T,
               setTimeout( function () {
                 try {
                 localStorage.setItem( 'taffy_' + settings.storageName, JSON.stringify( TOb ) );
-               } (Exception) {
+               } catch(Exception) {
                 
                }
               });
@@ -2060,4 +2049,4 @@ var TAFFY, T,
     }
   }
   return TAFFY;
-}(TAFFY));
+}());
