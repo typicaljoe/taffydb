@@ -25,10 +25,12 @@
 // BUILD 193d48d, modified by mmikowski to pass jslint
 
 // Setup TAFFY name space to return an object with methods
-var TAFFY, exports, T;
-(function () {
-  'use strict';
-  var
+var TAFFY, T;
+(function ( ){
+   'use strict';
+
+// Setup TAFFY name space to return an object with methods
+var 
     typeList,     makeTest,     idx,    typeKey,
     version,      TC,           idpad,  cmax,
     API,          protectJSON,  each,   eachin,
@@ -290,7 +292,7 @@ var TAFFY, exports, T;
             var c = [], looper;
 
             // function to loop and apply filter
-            looper = (s === 'hasAll') ?
+            looper = (s === 'hasAll' || s.toString().toLowerCase().indexOf('in')!==-1) ?
               function ( mtest, func ) {
                 func( mtest );
               } : each;
@@ -358,7 +360,8 @@ var TAFFY, exports, T;
                     ? mvalue.toLowerCase() === mtest.toLowerCase()
                       : mvalue === mtest) : (s === 'has')
                   ? (T.has( mvalue, mtest )) : (s === 'hasall')
-                  ? (T.hasAll( mvalue, mtest )) : (s === 'contains')
+                  ? (T.hasAll( mvalue, mtest )) : (s === 'in')
+                  ? (TAFFY.isArray(mtest) && mtest.indexOf(mvalue) > -1) : (s === 'contains')
                   ? (TAFFY.isArray(mvalue) && mvalue.indexOf(mtest) > -1) : (
                     s.indexOf( 'is' ) === -1
                       && !TAFFY.isNull( mvalue )
@@ -445,18 +448,27 @@ var TAFFY, exports, T;
 
       var sortFunc = function ( a, b ) {
         // function to pass to the native array.sort to sort an array
-        var r = 0;
+        var r = 0, collator;
+        try {
+          collator = new Intl.Collator("generic", {sensitivity: "base"})
+        } catch (e) {
+          collator = null;
+        }
 
         T.each( o, function ( sd ) {
           // loop over the sort instructions
           // get the column name
-          var o, col, dir, c, d;
+          var o, col, dir, c, d, lcomp;
           o = sd.split( ' ' );
           col = o[0];
 
           // get the direction
           dir = (o.length === 1) ? "logical" : o[1];
-
+          
+          if (dir === 'intl') {
+            if (collator === null) dir = 'logical';
+            else lcomp = collator.compare(a[col], b[col]);
+          }
 
           if ( dir === 'logical' ){
             // if dir is logical than grab the charnum arrays for the two values we are looking at
@@ -512,6 +524,11 @@ var TAFFY, exports, T;
             return T.EXIT;
 
           }
+          else if ( dir === 'intl' && lcomp != 0 ){
+            r = lcomp;
+            return T.EXIT;
+          }
+          
           // if r is still 0 and we are doing a logical sort than look to see if one array is longer than the other
           if ( r === 0 && dir === 'logical' && c.length < d.length ){
             r = -1;
@@ -1186,6 +1203,7 @@ var TAFFY, exports, T;
           onDBChange        : false,
           storageName       : false,
           forcePropertyCase : null,
+          delayDiskUpdates  : 0,
           cacheSize         : 100,
           name              : ''
         },
@@ -1276,13 +1294,31 @@ var TAFFY, exports, T;
               settings.onDBChange.call( TOb );
             }, 0 );
           }
-          if ( settings.storageName ){
+          if (settings.delayDiskUpdates === 0)
+          {
+           if ( settings.storageName ){
             setTimeout( function () {
-              localStorage.setItem( 'taffy_' + settings.storageName,
-                JSON.stringify( TOb ) );
+               try { localStorage.setItem( 'taffy_' + settings.storageName, JSON.stringify( TOb ) ); } catch(Exception) {}
             });
-          }
+           }
+		  }
           return dm;
+        },
+        delayDiskUpdates: function ( ) {
+          settings.delayDiskUpdates++;
+        },
+        flushDiskUpdates: function ( ) {
+          settings.delayDiskUpdates--;
+
+          if (settings.delayDiskUpdates === 0)
+          {
+            if ( settings.storageName ){
+              setTimeout( function () {
+                localStorage.setItem( 'taffy_' + settings.storageName,
+                  JSON.stringify( TOb ) );
+              });
+            }
+          }
         },
         insert       : function ( i, runEvent ) {
           // ****************************************
@@ -1315,7 +1351,7 @@ var TAFFY, exports, T;
 
             }
             else if ( T.isObject( v ) && settings.forcePropertyCase ){
-              o = {};
+              o = (typeof v == 'object') ? Object.create(Object.getPrototypeOf(v)) : {};
 
               eachin( v, function ( av, ai ) {
                 o[(settings.forcePropertyCase === 'lower') ? ai.toLowerCase()
@@ -1695,8 +1731,11 @@ var TAFFY, exports, T;
             }
             if ( TOb.length > 0 ){
               setTimeout( function () {
-                localStorage.setItem( 'taffy_' + settings.storageName,
-                  JSON.stringify( TOb ) );
+                try {
+                localStorage.setItem( 'taffy_' + settings.storageName, JSON.stringify( TOb ) );
+               } catch(Exception) {
+                
+               }
               });
             }
           }
@@ -1757,7 +1796,7 @@ var TAFFY, exports, T;
     // *
     // ****************************************   
     TAFFY.mergeObj = function ( ob1, ob2 ) {
-      var c = {};
+      var c = Object.create(Object.getPrototypeOf(ob1));
       eachin( ob1, function ( v, n ) { c[n] = ob1[n]; });
       eachin( ob2, function ( v, n ) { c[n] = ob2[n]; });
       return c;
@@ -1777,7 +1816,7 @@ var TAFFY, exports, T;
 
       var re = false, n;
 
-      if ( (var1.TAFFY) ){
+      if ( undefined !== var1 && (var1.TAFFY) ){
         re = var1( var2 );
         if ( re.length > 0 ){
           return true;
@@ -2009,9 +2048,5 @@ var TAFFY, exports, T;
       TAFFY['is' + typeKey] = makeTest( typeKey );
     }
   }
+  return TAFFY;
 }());
-
-if ( typeof(exports) === 'object' ){
-  exports.taffy = TAFFY;
-}
-
