@@ -320,7 +320,7 @@ var TAFFY, exports, T;
                   r
                   ;
 
-                if (typeof mvalue === 'undefined') {
+                if ((typeof mvalue === 'undefined') || (mvalue === null)) {
                   return false;
                 }
                 
