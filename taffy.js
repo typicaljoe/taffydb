@@ -35,7 +35,7 @@ var TAFFY, exports, T;
     isIndexable,  returnFilter, runFilters,
     numcharsplit, orderByCol,   run,    intersection,
     filter,       makeCid,      safeForJson,
-    isRegexp
+    isRegexp,     collator,     collatornocase
     ;
 
 
@@ -48,7 +48,9 @@ var TAFFY, exports, T;
     idpad   = '000000';
     cmax    = 1000;
     API     = {};
-
+    collator = new Intl.Collator("generic", { sensitivity: "case" });
+    collatornocase = new Intl.Collator("generic", { sensitivity: "base" });
+    
     protectJSON = function ( t ) {
       // ****************************************
       // *
@@ -334,44 +336,35 @@ var TAFFY, exports, T;
                 // get the match results based on the s/match type
                 /*jslint eqeq : true */
                 r = (
-                  (s === 'regex') ? (mtest.test( mvalue )) : (s === 'lt' || s === lt)
-                  ? (mvalue < mtest)  : (s === 'gt' || s === gt)
-                  ? (mvalue > mtest)  : (s === 'lte' || s === lteq)
-                  ? (mvalue <= mtest) : (s === 'gte' || s === gteq)
-                  ? (mvalue >= mtest) : (s === 'left')
-                  ? (mvalue.indexOf( mtest ) === 0) : (s === 'leftnocase')
-                  ? (mvalue.toLowerCase().indexOf( mtest.toLowerCase() )
-                    === 0) : (s === 'right')
-                  ? (mvalue.substring( (mvalue.length - mtest.length) )
-                    === mtest) : (s === 'rightnocase')
-                  ? (mvalue.toLowerCase().substring(
-                    (mvalue.length - mtest.length) ) === mtest.toLowerCase())
-                    : (s === 'like')
-                  ? (mvalue.indexOf( mtest ) >= 0) : (s === 'likenocase')
-                  ? (mvalue.toLowerCase().indexOf(mtest.toLowerCase()) >= 0)
-                    : (s === eqeqeq || s === 'is')
-                  ? (mvalue ===  mtest) : (s === eqeq)
-                  ? (mvalue == mtest) : (s === bangeqeq)
-                  ? (mvalue !==  mtest) : (s === bangeq)
-                  ? (mvalue != mtest) : (s === 'isnocase')
-                  ? (mvalue.toLowerCase
-                    ? mvalue.toLowerCase() === mtest.toLowerCase()
-                      : mvalue === mtest) : (s === 'has')
-                  ? (T.has( mvalue, mtest )) : (s === 'hasall')
-                  ? (T.hasAll( mvalue, mtest )) : (s === 'contains')
-                  ? (TAFFY.isArray(mvalue) && mvalue.indexOf(mtest) > -1) : (
+                  (s === 'regex') ? (mtest.test( mvalue ))
+                : (s === 'lt' || s === lt) ? (mvalue < mtest)
+                : (s === 'gt' || s === gt) ? (mvalue > mtest)
+                : (s === 'lte' || s === lteq) ? (mvalue <= mtest)
+                : (s === 'gte' || s === gteq) ? (mvalue >= mtest)
+                : (s === 'left') ? (mvalue.localeIndexOf( mtest, 0, collator ) === 0)
+                : (s === 'leftnocase') ? (mvalue.localeIndexOf( mtest, 0, collatornocase ) === 0)
+                : (s === 'right') ? (mvalue.localeIndexOf( mtest, mvalue.length - mtest.length, collator ) >= 0)
+                : (s === 'rightnocase') ? (mvalue.localeIndexOf( mtest, mvalue.length - mtest.length, collatornocase ) >= 0)
+                : (s === 'like') ? (mvalue.localeIndexOf(mtest, 0, collator) >= 0)
+                : (s === 'likenocase') ? (mvalue.localeIndexOf(mtest, 0, collatornocase) >= 0)
+                : (s === eqeqeq || s === 'is') ? (collator.compare(mvalue, mtest) === 0)
+                : (s === eqeq) ? (mvalue == mtest)
+                : (s === bangeqeq) ? (collator.compare(mvalue, mtest) !== 0)
+                : (s === bangeq) ? (mvalue != mtest)
+                : (s === 'isnocase') ? (collatornocase.compare(mvalue, mtest) === 0)
+                : (s === 'has') ? (T.has( mvalue, mtest ))
+                : (s === 'hasall') ? (T.hasAll( mvalue, mtest ))
+                : (s === 'contains') ? (TAFFY.isArray(mvalue) && mvalue.indexOf(mtest) > -1)
+                : (
                     s.indexOf( 'is' ) === -1
                       && !TAFFY.isNull( mvalue )
                       && !TAFFY.isUndefined( mvalue )
                       && !TAFFY.isObject( mtest )
                       && !TAFFY.isArray( mtest )
-                    )
-                  ? (mtest === mvalue[s])
-                    : (T[s] && T.isFunction( T[s] )
-                    && s.indexOf( 'is' ) === 0)
-                  ? T[s]( mvalue ) === mtest
-                    : (T[s] && T.isFunction( T[s] ))
-                  ? T[s]( mvalue, mtest ) : (false)
+                    ) ? (mtest === mvalue[s])
+                : (T[s] && T.isFunction( T[s] ) && s.indexOf( 'is' ) === 0) ? T[s]( mvalue ) === mtest
+                : (T[s] && T.isFunction( T[s] )) ? T[s]( mvalue, mtest )
+                : (false)
                 );
                 /*jslint eqeq : false */
                 r = (r && !su) ? false : (!r && !su) ? true : r;
@@ -450,13 +443,16 @@ var TAFFY, exports, T;
         T.each( o, function ( sd ) {
           // loop over the sort instructions
           // get the column name
-          var o, col, dir, c, d;
+          var o, col, dir, c, d, lcomp;
           o = sd.split( ' ' );
           col = o[0];
 
           // get the direction
           dir = (o.length === 1) ? "logical" : o[1];
-
+		  
+          if (dir === 'intl' || dir === 'intldesc') {
+			lcomp = collatornocase.compare(a[col], b[col]);
+          }
 
           if ( dir === 'logical' ){
             // if dir is logical than grab the charnum arrays for the two values we are looking at
@@ -511,6 +507,14 @@ var TAFFY, exports, T;
             r = 1;
             return T.EXIT;
 
+          }
+          else if ( dir === 'intl' && lcomp != 0 ){
+	        r = lcomp;
+	        return T.EXIT;
+          }
+          else if ( dir === 'intldesc' && lcomp != 0 ){
+  	        r = -lcomp;
+  	        return T.EXIT;
           }
           // if r is still 0 and we are doing a logical sort than look to see if one array is longer than the other
           if ( r === 0 && dir === 'logical' && c.length < d.length ){
@@ -2015,3 +2019,29 @@ if ( typeof(exports) === 'object' ){
   exports.taffy = TAFFY;
 }
 
+// added for like and likenocase queries for locale-aware searches (Cedric Bertolini, 2014-12-23)
+if(typeof String.prototype.localeIndexOf === "undefined") 
+{
+	/*
+	 * String#localeIndexOf(searchValue, [fromIndex, [locales, [options]]])
+	 * @param searchValue: the string to search
+	 * @param fromIndex: the index to start searching (default 0)
+	 * @param locales: either a Intl.Collator object, or the locales the use for a new Intl.Collator object
+	 * @param options: the options to use for a new Intl.Collator object if one is created
+	 * @return integer: the 0-based index of the searchValue in the string, or -1 if not found
+	 */
+	String.prototype.localeIndexOf = function localeIndexOf(searchValue, fromIndex, locales, options)
+	{
+		if(searchValue == null) return -1;
+		if(fromIndex == null) fromIndex = 0;
+		var co = locales instanceof Intl.Collator ? locales : new Intl.Collator(locales, options), baseString = this, searchLength = searchValue.length, maxIndex = baseString.length - searchLength, index;
+		for(index=fromIndex; index<=maxIndex; index++) 
+		{
+			if(co.compare(searchValue, baseString.slice(index, index+searchLength)) === 0) 
+			{
+				return index;
+			}
+		}
+		return -1;
+	};
+}
