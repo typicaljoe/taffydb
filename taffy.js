@@ -1647,8 +1647,6 @@ var TAFFY;
           context.index.push( data );
         }
         else {
-          console.warn( data );
-          console.warn( returnFilter( data ) );
           context.q.push( returnFilter( data ) );
         }
         context.filterRaw.push( data );
