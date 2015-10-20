@@ -49,10 +49,13 @@ var TAFFY;
     isIndexable,   returnFilter,
     runFilters,    numcharsplit, orderByCol,     run,
     makeInnerJoin, makeCid,       safeForJson,
-    isRegexp,      sortArgs
+    isRegexp,      makeSortArgList
     ;
 
-  if ( TAFFY ){ return; }
+  if ( TAFFY ){ 
+    console.warn( TAFFY );
+    return TAFFY;
+  }
 
   // TC = Counter for Taffy DBs on page, used for unique IDs
   // cmax = size of charnumarray conversion cache
@@ -62,7 +65,7 @@ var TAFFY;
   idpad      = '000000';
   cmax       = 1000;
   API        = {};
-  sortArgs   = function ( arg_obj ) {
+  makeSortArgList   = function ( arg_obj ) {
     var arg_list = Array.prototype.slice.call( arg_obj );
     return arg_list.sort();
   };
@@ -161,8 +164,8 @@ var TAFFY;
   // ****************************************
   //
   API.extend = function ( m, fun ) {
-    var arg_list = sortArgs( arguments );
     API[m] = function () {
+    var arg_list = makeSortArgList( arguments );
       return fun.apply( this, arg_list );
     };
   };
@@ -652,7 +655,7 @@ var TAFFY;
   API.extend( 'filter', function () {
     var
       nc       = TAFFY.mergeObj( this.context(), { run : null } ),
-      arg_list = sortArgs( arguments ),
+      arg_list = makeSortArgList( arguments ),
       nq       = []
     ;
     each( nc.q, function ( v ) {
@@ -747,7 +750,7 @@ var TAFFY;
     // *
     // * Takes: a object and passes it off DBI update method for all matched records
     // ****************************************
-    var runEvent = true, o = {}, arg_list = sortArgs( arguments ), that;
+    var runEvent = true, o = {}, arg_list = makeSortArgList( arguments ), that;
     if ( TAFFY.isString( arg0 ) &&
       ( arg_list.length === 2 || arg_list.length === 3) )
     {
@@ -1084,7 +1087,7 @@ var TAFFY;
   //
   API.extend( 'select', function () {
 
-    var ra = [], arg_list = sortArgs( arguments );
+    var ra = [], arg_list = makeSortArgList( arguments );
     run.call( this );
     if ( arg_list.length === 1 ){
 
@@ -1112,7 +1115,7 @@ var TAFFY;
   // ****************************************
   //
   API.extend( 'distinct', function () {
-    var ra = [], arg_list = sortArgs( arguments );
+    var ra = [], arg_list = makeSortArgList( arguments );
     run.call( this );
     if ( arg_list.length === 1 ){
 
@@ -1646,7 +1649,7 @@ var TAFFY;
       // * Call the query method to setup a new query
       // ****************************************
       //
-      each( arguments, function ( data ) {
+      each( makeSortArgList( arguments ), function ( data ) {
         if ( isIndexable( data ) ){
           context.index.push( data );
         }

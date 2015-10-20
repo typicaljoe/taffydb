@@ -109,12 +109,14 @@
   // Begin runTests
   runTests = function () {
     var
-      friend_db, taffy_map,
-      key_name, data_val, msg_text, var_type;
+      test_idx = 0,
+      
+      friend_db, test_map, val_map, key_name,
+      data_val, msg_text, val_text, var_type;
 
     friend_db = TAFFY( getFriendList() );
 
-    taffy_map = {
+    test_map = {
       by_city         : friend_db({ city : "Seattle, WA"}),
       by_id           : friend_db({ id : 1}),
       by_id_f         : friend_db({ id : '1'}),
@@ -126,31 +128,51 @@
       filter_list     : friend_db().filter({ city : "Seattle, WA"})
     };
 
-    for ( key_name in taffy_map ){
-      if ( taffy_map.hasOwnProperty( key_name ) ) {
-        data_val = taffy_map[ key_name ];
+    val_map = {
+      by_city         : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
+      by_id           : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}]',
+      by_id_f         : '[]',
+      by_name         : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}]',
+      kelly_by_id     : '{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true}',
+      kelly_last_name : '"Ruth"',
+      id_list         : '[1,2,3,4]',
+      city_list       : '["Seattle, WA","Dallas, TX","Washington, D.C."]',
+      filter_list     : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]'
+    };
+
+    for ( key_name in test_map ){
+      test_idx += 1;
+      
+      if ( test_map.hasOwnProperty( key_name ) ) {
+        data_val = test_map[ key_name ];
         var_type = getVarType( data_val );
-        msg_text = key_name + ': \n ===================\n';
+        msg_text = String( test_idx ) + ' : Test: ' + key_name + ' : ';
 
         switch ( var_type ){
           case 'Object'   :
             if ( data_val.hasOwnProperty( 'get' ) ){
-              msg_text += JSON.stringify( data_val.get() );
+              val_text = JSON.stringify( data_val.get() );
             }
             else {
-              msg_text += JSON.stringify( data_val );
+              val_text = JSON.stringify( data_val );
             }
             break;
           case 'Number' :
-            msg_text += String( data_val );
+            val_text = String( data_val );
             break;
 
           default :
-            msg_text += JSON.stringify( data_val );
+            val_text = JSON.stringify( data_val );
         }
 
-        msg_text += '\n\n';
-
+        if ( val_map[ key_name ] === val_text ) {
+          msg_text += 'pass';
+        }
+        else {
+          msg_text += 'FAIL\n';
+          msg_text += '  ACTUAL   : ' + val_text + '\n';
+          msg_text += '  EXPECTED : ' + val_map[ key_name ] + '\n\n';
+        }
         console.log( msg_text );
       }
     }
