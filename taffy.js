@@ -35,35 +35,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  white  : true, todo    : true
 */
 
-// BUILD 193d48d, modified by mmikowski to pass jslint
+// BUILD > 193d48d, modified by mmikowski to pass jslint
 
 var TAFFY;
 // Setup TAFFY name space to return an object with methods
 (function () {
   'use strict';
   var
-    T,            filterList,
-    typeList,     makeTest,       idx,    typeKey,
-    versionStr,   TC,             idpad,  cmax,
-    API,          protectJSON,    each,   eachin,
-    isIndexable,  returnFilter,
-    runFilters,   numcharsplit, orderByCol,     run,
+    T,             filterList,
+    typeList,      makeTest,       idx,    typeKey,
+    versionStr,    TC,             idpad,  cmax,
+    API,           protectJSON,    each,   eachin,
+    isIndexable,   returnFilter,
+    runFilters,    numcharsplit, orderByCol,     run,
     makeInnerJoin, makeCid,       safeForJson,
-    isRegexp
+    isRegexp,      sortArgs
     ;
-
 
   if ( TAFFY ){ return; }
 
   // TC = Counter for Taffy DBs on page, used for unique IDs
   // cmax = size of charnumarray conversion cache
   // idpad = zeros to pad record IDs with
-  versionStr = '2.8.0';
+  versionStr = '2.8.1'; // proposed by mmikowski
   TC         = 1;
   idpad      = '000000';
   cmax       = 1000;
   API        = {};
-
+  sortArgs   = function ( arg_obj ) {
+    var arg_list = Array.prototype.slice.call( arg_obj );
+    return arg_list.sort();
+  };
   // ****************************************
   // * Takes: a variable
   // * Returns: the variable if object/array or the parsed variable if JSON
@@ -159,8 +161,9 @@ var TAFFY;
   // ****************************************
   //
   API.extend = function ( m, fun ) {
+    var arg_list = sortArgs( arguments );
     API[m] = function () {
-      return fun.apply( this, arguments );
+      return fun.apply( this, arg_list );
     };
   };
 
@@ -648,15 +651,16 @@ var TAFFY;
   //
   API.extend( 'filter', function () {
     var
-      nc = TAFFY.mergeObj( this.context(), { run : null } ),
-      nq = []
+      nc       = TAFFY.mergeObj( this.context(), { run : null } ),
+      arg_list = sortArgs( arguments ),
+      nq       = []
     ;
     each( nc.q, function ( v ) {
       nq.push( v );
     });
     nc.q = nq;
     // Hadnle passing of ___ID or a record on lookup.
-    each( arguments, function ( f ) {
+    each( arg_list, function ( f ) {
       nc.q.push( returnFilter( f ) );
       nc.filterRaw.push( f );
     });
@@ -743,18 +747,18 @@ var TAFFY;
     // *
     // * Takes: a object and passes it off DBI update method for all matched records
     // ****************************************
-    var runEvent = true, o = {}, args = arguments, that;
+    var runEvent = true, o = {}, arg_list = sortArgs( arguments ), that;
     if ( TAFFY.isString( arg0 ) &&
-      (arguments.length === 2 || arguments.length === 3) )
+      ( arg_list.length === 2 || arg_list.length === 3) )
     {
       o[arg0] = arg1;
-      if ( arguments.length === 3 ){
+      if ( arg_list.length === 3 ){
         runEvent = arg2;
       }
     }
     else {
       o = arg0;
-      if ( args.length === 2 ){
+      if ( arg_list.length === 2 ){
         runEvent = arg1;
       }
     }
@@ -1080,19 +1084,19 @@ var TAFFY;
   //
   API.extend( 'select', function () {
 
-    var ra = [], args = arguments;
+    var ra = [], arg_list = sortArgs( arguments );
     run.call( this );
-    if ( arguments.length === 1 ){
+    if ( arg_list.length === 1 ){
 
       each( this.context().results, function ( r ) {
 
-        ra.push( r[args[0]] );
+        ra.push( r[arg_list[0]] );
       });
     }
     else {
       each( this.context().results, function ( r ) {
         var row = [];
-        each( args, function ( c ) {
+        each( arg_list, function ( c ) {
           row.push( r[c] );
         });
         ra.push( row );
@@ -1108,12 +1112,12 @@ var TAFFY;
   // ****************************************
   //
   API.extend( 'distinct', function () {
-    var ra = [], args = arguments;
+    var ra = [], arg_list = sortArgs( arguments );
     run.call( this );
-    if ( arguments.length === 1 ){
+    if ( arg_list.length === 1 ){
 
       each( this.context().results, function ( r ) {
-        var v = r[args[0]], dup = false;
+        var v = r[arg_list[0]], dup = false;
         each( ra, function ( d ) {
           if ( v === d ){
             dup = true;
@@ -1128,13 +1132,13 @@ var TAFFY;
     else {
       each( this.context().results, function ( r ) {
         var row = [], dup = false;
-        each( args, function ( c ) {
+        each( arg_list, function ( c ) {
           row.push( r[c] );
         });
         each( ra, function ( d ) {
           var ldup = true;
           /*jslint unparam: true*/
-          each( args, function ( c, i ) {
+          each( arg_list, function ( c, i ) {
             if ( row[i] !== d[i] ){
               ldup = false;
               return TAFFY.EXIT;
