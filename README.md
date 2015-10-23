@@ -1,10 +1,20 @@
 # TaffyDB (taffy.js)
 
-TaffyDB is an opensouce library that brings database features into your JavaScript applications.
+TaffyDB is an opensouce library that brings database features 
+into your JavaScript applications.
 
 ## Introduction
 
-How you ever noticed how JavaScript object literals look a lot like records? And that if you wrap a group of them up in an array you have something that atcs a lot like a database table? TaffyDB brings powerful database funtionality to that concept and rapidly improves the way you work with data inside of JavaScript.
+TaffyDB brings powerful SQL-like database capabilities to JavaScript,
+and can greatly improve the way you with with data in your applications.
+It can also greatly reduce development time and improve the speed and 
+quality of your code.
+
+How you ever noticed how JavaScript object literals look a lot like
+records? And that if you wrap a group of them up in an array you have
+something that acts a lot like a database table?  We did too, and 
+TaffyDB provides you with a rich set of tools to manipulate lists of
+objects with a fast, uniform API.
 
 ## What makes it sticky
 
@@ -16,60 +26,66 @@ How you ever noticed how JavaScript object literals look a lot like records? And
  - Compatible with any DOM library (jQuery, YUI, Dojo, etc)
 
 ## Create a DB
+Just pass in a JSON array:
 
-Just pass in JSON:
+    var product_db = TAFFY([
+      { "item"  : 1,
+        "name"  : "Blue Ray Player",
+        "price" : 99.99
+      },
+      { "item"  : 2,
+        "name"  : "3D TV",
+        "price" : 1799.99
+      }
+    ]);
 
-    var products = TAFFY([{
-      "item":1,
-    	"name":"Blue Ray Player",
-    	"price":99.99
-    }, {
-        "item":2,
-        name:"3D TV",
-        price:1799.99
-    }]);
+## Example queries
 
-
-## Find data
-
-Use JSON to compare:
-
-    var item1 = products({item:1});
     // where item is equal to 1
-    var lowPricedItems = products({price:{lt:100}});
-	// where price is less than 100
-	var blueRayPlayers = products({name:{like:"Blue Ray"}});
-	// where name is like "Blue Ray"
+    var item1 = products({item:1});
 
-## Use data
+	  // where price is less than 100
+    var lowPricedItems = products({price:{lt:100}});
+
+    // where name is like "Blue Ray"
+    var blueRayPlayers = products({name:{like:"Blue Ray"}});
+
+    // get first record
+    products().first();
+
+    // get last record
+    products().last();
+
+## Example record manipulation
 
     // update the price of the Blue Ray Player to 89.99
     products({item:1}).update({price:89.99});
+
     // loop over the records and call a function
     products().each(function (r) {alert(r.name)});
-    // get first record
-    products().first();
-    // get last record
-    products().last();
+
     // sort the records by price descending
     products.sort("price desc");
+
     // select only the item names into an array
     products().select("name"); // returns ["3D TV","Blue Ray Player"]
-    // inject values from a record into a string template
+
+    // Inject values from a record into a string template.
+    // Row value will be set to "<tr><td>3D TV</td><td>17999.99</td></tr>"
     var row = products({item:2}).supplant("<tr><td>{name}</td><td>{price}</td></tr>");
-    // row now equal to "<tr><td>3D TV</td><td>17999.99</td></tr>"
 
-## Documentation, support, updates
+## Use it in Node.JS
+Node is easy to use in Node.JS.  Simply install using `npm` and `require` the
+package:
 
-View more docs and examples, get support, and get notified of updates:
+    TAFFY = require( 'taffy' ).taffy;
 
-Web: http://taffydb.com
-Twitter: http://twitter.com/biastoact 
+The automated regression test file `nodeunit_suite.js` is an excellent
+example.
 
 ## Automated regression tests
 
 ### Purpose
-
 TaffyDB has been used and refined for years for numerous production tools and
 commercial products.  It is therefore is quite stable and reliable.  However,
 we want expand our regression test suite so that it provides excellent coverage.
@@ -77,7 +93,6 @@ That will allow us to improve the code with the confidence that we are
 unlikely to break exising tools and processes.
 
 ### Running the tests
-
 Running the nodeunit suite is simple:
 
     cd taffydb
@@ -90,6 +105,13 @@ help is certainly welcome!  The nodeunit code is quite easy to adjust, so if
 you want to provide a pull request for a change, that would be welcome.
 Alternately, if you just send along the code for a test scenario, we'd be
 happy to include it in the suite.
+
+## Documentation, support, updates
+View more docs and examples, get support, and get notified of updates:
+
+Web: http://taffydb.com
+Twitter: http://twitter.com/biastoact 
+
 
 ## Software License Agreement (BSD License)
 Copyright (c)
