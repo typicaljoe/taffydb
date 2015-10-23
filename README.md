@@ -66,6 +66,30 @@ View more docs and examples, get support, and get notified of updates:
 Web: http://taffydb.com
 Twitter: http://twitter.com/biastoact 
 
+## Automated regression tests
+
+### Purpose
+
+TaffyDB has been used and refined for years for numerous production tools and
+commercial products.  It is therefore is quite stable and reliable.  However,
+we want expand our regression test suite so that it provides excellent coverage.
+That will allow us to improve the code with the confidence that we are
+unlikely to break exising tools and processes.
+
+### Running the tests
+
+Running the nodeunit suite is simple:
+
+    cd taffydb
+    npm install
+    nodeunit ./nodeunit_suite.js
+
+### Help us out!
+We wish to substantially expand the number of tests, and your
+help is certainly welcome!  The nodeunit code is quite easy to adjust, so if
+you want to provide a pull request for a change, that would be welcome.
+Alternately, if you just send along the code for a test scenario, we'd be
+happy to include it in the suite.
 
 ## Software License Agreement (BSD License)
 Copyright (c)

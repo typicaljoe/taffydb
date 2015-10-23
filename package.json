@@ -4,19 +4,19 @@
   },
   "contributors": [
     {
-      "name":"Ian Smith"
+      "name": "Ian Smith"
     },
     {
-      "name":"Todd Chambery",
-      "email":"todd.chambery@gmail.com"
+      "name": "Todd Chambery",
+      "email": "todd.chambery@gmail.com"
     },
     {
-      "name":"Daniel Ruf",
-      "email":"kontakt@daniel-ruf.de"
+      "name": "Daniel Ruf",
+      "email": "kontakt@daniel-ruf.de"
     },
     {
-      "name":"Michael Mikowski",
-      "email":"mmikowski@snaplogic.com"
+      "name": "Michael Mikowski",
+      "email": "mmikowski@snaplogic.com"
     },
     {
       "name": "Matthew Chase Whittemore",
@@ -32,6 +32,8 @@
     "type": "git",
     "url": "git://github.com/typicaljoe/taffydb.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "nodeunit": "^0.9.1"
+  },
   "devDependencies": {}
 }
