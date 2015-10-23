@@ -88,9 +88,8 @@ example.
 ### Purpose
 TaffyDB has been used and refined for years for numerous production tools and
 commercial products.  It is therefore is quite stable and reliable.  However,
-we want expand our regression test suite so that it provides excellent coverage.
-That will allow us to improve the code with the confidence that we are
-unlikely to break exising tools and processes.
+we want expand our regression test coverage so we can easily improve the code
+with the confidence that we are unlikely to break exising capabilities.
 
 ### Running the tests
 Running the nodeunit suite is simple:
