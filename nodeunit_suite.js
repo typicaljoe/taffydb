@@ -1,8 +1,8 @@
-/*jslint            node : true, continue : true,
-  devel   : true, indent : 2,    maxerr   : 50,
-  newcap  : true, nomen  : true, plusplus : true,
-  regexp  : true, vars   : false, white  : true
-  unparam : true, sloppy : true,
+/*jslint              node : true,   continue : true,
+    devel : true,   indent : 2,        maxerr : 50,
+   newcap : true,    nomen : true,   plusplus : true,
+   regexp : true,     vars : false,     white : true
+  unparam : true,   sloppy : true,       todo : true
 */
 /*global global, module, require, $, KI, document, window */
 // global global, module, require, $, KI, document, window
@@ -32,7 +32,7 @@
 
     // Declare tests
     testSmoke, testShowBug, testDummy
-  ;
+    ;
   // END module-scope vars
 
   // BEGIN public utility /getVarType/
@@ -52,60 +52,116 @@
   // BEGIN testSmoke
   testSmoke = function ( test_obj ) {
     var
-      friend_db, test_map, val_map, key_name,
-      data_val, msg_str, val_str, var_type
+      friend_db, query_list, query_count, initial_list, expect_map,
+      idx, bit_list, key_name, data_val, expect_str, actual_str, msg_str,
+
+      partial, chain_list, chain_count, i, chain_map
       ;
 
-    test_obj.expect( 9 );
     friend_db = TAFFY( cloneFriendList() );
 
-    test_map = {
-      by_city         : friend_db({ city : "Seattle, WA"}),
-      by_id           : friend_db({ id : 1}),
-      by_id_f         : friend_db({ id : '1'}),
-      by_name         : friend_db({ first : 'John',last:'Smith'}),
-      kelly_by_id     : friend_db({ id : 2}).first(),
-      kelly_last_name : friend_db({ id : 2}).first().last,
-      id_list         : friend_db().select( 'id' ),
-      city_list       : friend_db().distinct( 'city' ),
-      filter_list     : friend_db().filter({ city : "Seattle, WA"})
-    };
-    val_map = {
-      by_city         : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
-      by_id           : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}]',
-      by_id_f         : '[]',
-      by_name         : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}]',
+    initial_list = friend_db().get();
+
+    // Data to to build test function calls like
+    //   friend_db({city: "Seattle, // WA"}).get();
+    query_list = [
+      [ 'filter_city',      [ { city : "Seattle, WA"}, { key: 'get' } ] ],
+      [ 'filter_id_num',    [ { id : 1 }, { key : 'get' }             ] ],
+      [ 'filter_id_str',    [ { id : '1'}, { key : 'get' }            ] ],
+      [ 'filter_name',      [ { first : 'John', last : 'Smith' }, { key : 'get' } ] ],
+      [ 'kelly_by_id',      [ { id : 2}, { key : 'first' } ] ],
+      [ 'kelly_last_name',  [ { id : 2}, { key : 'first' }, { _xprop : 'last' } ] ],
+      [ 'id_list',          [ null, { key : 'select', val : 'id' } ] ],
+      [ 'city_list',        [ null, { key : 'distinct', val : 'city' } ] ],
+      [ 'filter_001',       [ null, { key : 'filter', val : { city : "Seattle, WA"} }, { key : 'get' } ] ],
+
+      // should match initial order
+      [ 'order_001',        [ null, { key : 'get' } ] ],
+      [ 'order_002',        [ null, { key : 'order', val : 'gender' }, { key : 'get' } ] ],
+      [ 'order_003',        [ null, { key : 'order', val : 'gender desc' }, { key : 'get' } ] ],
+      [ 'order_004',        [ null, { key : 'order', val : 'gender, last' }, { key : 'get' } ] ],
+      [ 'order_005',        [ null, { key : 'order', val : 'gender desc, last desc' }, { key : 'get' } ] ],
+      // TODO: asec is not really supported, but is default sort.
+      // Also should the abbreviation be 'asc' or similar?
+      [ 'order_006',        [ null, { key : 'order', val : 'first' }, { key : 'get' } ] ],
+      [ 'order_007',        [ null, { key : 'order', val : 'last' },  { key : 'get' } ] ],
+      [ 'order_008',        [ null, { key : 'order', val : 'first desc' }, { key : 'get' } ] ],
+      [ 'order_009',        [ null, { key : 'order', val : 'last desc' },  { key : 'get' } ] ],
+      // should match initial order
+      [ 'order_001',        [ null, { key : 'get' } ] ],
+      [ 'sort_001_002',     [ { _xsort : 'last' }, { key : 'get' }    ] ],
+      // should match changed order
+      [ 'sort_001_002',     [ null, { key : 'get'}  ] ],
+    ];
+
+    query_count = query_list.length;
+    test_obj.expect( query_count );
+
+    expect_map = {
+      filter_city     : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
+      filter_id_num   : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}]',
+      filter_id_str   : '[]',
+      filter_name     : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}]',
       kelly_by_id     : '{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true}',
       kelly_last_name : '"Ruth"',
       id_list         : '[1,2,3,4]',
       city_list       : '["Seattle, WA","Dallas, TX","Washington, D.C."]',
-      filter_list     : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]'
+      filter_001      : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
+      order_001       :  JSON.stringify( initial_list ),
+      order_002       :  '[{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
+      order_003       : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
+      order_004       :  '[{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
+      order_005       :  '[{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
+      order_006       :  '[{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true}]',
+      order_007       :  '[{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
+      order_008       :  '[{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
+      order_009       :  '[{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
+      order_010       :  JSON.stringify( initial_list ),
+      sort_001_002    :  '[{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
     };
 
-    for ( key_name in test_map ){
-      if ( test_map.hasOwnProperty( key_name ) ) {
-        data_val = test_map[ key_name ];
-        var_type = getVarType( data_val );
+    for ( idx = 0; idx < query_count; idx++ ) {
+      bit_list   = query_list[ idx ];
+      key_name   = bit_list[ 0 ];
+      data_val   = bit_list[ 1 ];
+      expect_str = expect_map[ key_name ] || '';
 
-        switch ( var_type ){
-          case 'Object'   :
-            if ( data_val.hasOwnProperty( 'get' ) ){
-              val_str = JSON.stringify( data_val.get() );
-            }
-            else {
-              val_str = JSON.stringify( data_val );
-            }
-            break;
-          case 'Number' :
-            val_str = String( data_val );
-            break;
+      chain_list  = data_val;
+      chain_count = chain_list.length;
 
-          default :
-            val_str = JSON.stringify( data_val );
+      _PARTIAL_:
+      for ( i = 0; i < chain_count; i++ ) {
+        chain_map = chain_list[ i ];
+
+        if ( i === 0 ) {
+          if ( ! chain_map ) {
+            partial = friend_db();
+          }
+          else if ( chain_map._xsort ) {
+            friend_db.sort( chain_map._xsort );
+            partial = friend_db();
+          }
+          else {
+            partial = friend_db( chain_map );
+          }
         }
-        // msg_str = 'Test: ' + key_name + ' === ' + val_str;
-        test_obj.equal( val_str, val_map[ key_name ] ); //, msg_str );
+
+        else {
+          if ( chain_map._xprop ) {
+            partial = partial[ chain_map._xprop ];
+          }
+          else if ( chain_map.val ) {
+            partial = partial[ chain_map.key ]( chain_map.val );
+          }
+          else {
+            partial = partial[ chain_map.key ]();
+          }
+        }
       }
+
+      actual_str = JSON.stringify( partial );
+      msg_str = actual_str + ' === ' + expect_str;
+      test_obj.equal( actual_str, expect_str, msg_str );
     }
     test_obj.done();
   };
@@ -132,13 +188,13 @@
     // console.log( '...even though the city has changed in the collection.' );
     // console.log( friend_db().get() );
     // console.log( '' );
-    // 
+    //
     // console.log( 'Example filter when .update() is used.');
     // friend_db = TAFFY( cloneFriendList() );
-    // 
+    //
     // friend_db({ city : 'Seattle, WA' })
     //   .update({ city : 'WallaWalla, WA' });
-    // 
+    //
     // console.log( 'now we get the correct response (0 rows) ...' );
     // console.log(
     //   friend_db().filter({ city : 'Seattle, WA'}).get()
@@ -158,7 +214,7 @@
     // Suprisingly, a non-zero exit value (echo $?) is provided
     // when the tests do not pass, which is awesome!
     //
-    // setTimeout( function (){ process.exit(0); }, 100 );
+    setTimeout( function (){ process.exit(0); }, 100 );
   };
 
   module.exports = {
