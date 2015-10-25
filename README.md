@@ -95,10 +95,14 @@ with the confidence that we are unlikely to break exising capabilities.
 Running the nodeunit suite is simple:
 
     cd taffydb
-    npm install
-    nodeunit ./nodeunit_suite.js
+    install_dev.sh # this installs development dependencies
+    bin/nodeunit ./nodeunit_suite.js
 
 ### Help us out!
+If you want to help with taffydb development, run the `install_dev.sh`
+script to install development utilities such as jslint, nodeunit, and
+uglifyjs to the `bin` directory.
+
 We wish to substantially expand the number of tests, and your
 help is certainly welcome!  The nodeunit code is quite easy to adjust, so if
 you want to provide a pull request for a change, that would be welcome.
@@ -110,7 +114,6 @@ View more docs and examples, get support, and get notified of updates:
 
 Web: http://taffydb.com
 Twitter: http://twitter.com/biastoact 
-
 
 ## Software License Agreement (BSD License)
 Copyright (c)
