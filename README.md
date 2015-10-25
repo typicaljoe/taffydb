@@ -6,7 +6,7 @@ into your JavaScript applications.
 ## Introduction
 
 TaffyDB brings powerful SQL-like database capabilities to JavaScript,
-and can greatly improve the way you with with data in your applications.
+and can greatly improve the way you manipulate data in your applications.
 It can also greatly reduce development time and improve the speed and 
 quality of your code.
 
