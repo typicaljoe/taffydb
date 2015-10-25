@@ -105,8 +105,8 @@ with the confidence that we are unlikely to break exising capabilities.
 Running the nodeunit suite is simple:
 
     cd taffydb
-    npm install --dev
-    ./nodeunit ./nodeunit_suite.js
+    install_dev.sh # this installs development dependencies
+    bin/nodeunit ./nodeunit_suite.js
 
 ### Help us out!
 We wish to substantially expand the number of tests, and your
