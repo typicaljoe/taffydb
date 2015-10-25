@@ -16,7 +16,7 @@
     },
     {
       "name": "Michael Mikowski",
-      "email": "mmikowski@snaplogic.com"
+      "email": "mike.mikowski@gmail.com"
     },
     {
       "name": "Matthew Chase Whittemore",
@@ -26,15 +26,17 @@
   "name": "taffydb",
   "main": "./taffy",
   "description": "TaffyDB is an opensouce library that brings database features into your JavaScript applications.",
-  "version": "2.7.2",
+  "version": "2.8.1",
   "homepage": "http://taffydb.com/",
   "repository": {
     "type": "git",
     "url": "git://github.com/typicaljoe/taffydb.git"
   },
   "dependencies": {
-    "jslint": "^0.9.3",
-    "nodeunit": "^0.9.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "jslint": "^0.9.3",
+    "nodeunit": "^0.9.1",
+    "uglifyjs": "^2.4.10"
+  }
 }

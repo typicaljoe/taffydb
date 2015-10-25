@@ -1,7 +1,17 @@
-# TaffyDB (taffy.js)
+# TaffyDB (taffy.js) - mmikowski fork
 
 TaffyDB is an opensouce library that brings database features 
 into your JavaScript applications.
+
+## New versions
+
+### 2.8.0
+- Adjusted to pass jslint and employ some best practice
+
+## 2.8.1 - updated regression tests, ported iOS9 fix from
+- Updated tests to check for regressions
+- Made tests easy to expand
+- Added iOS9 fixes per https://github.com/typicaljoe/taffydb/pull/101/files
 
 ## Introduction
 
@@ -95,8 +105,8 @@ with the confidence that we are unlikely to break exising capabilities.
 Running the nodeunit suite is simple:
 
     cd taffydb
-    npm install
-    nodeunit ./nodeunit_suite.js
+    install_dev.sh # this installs development dependencies
+    bin/nodeunit ./nodeunit_suite.js
 
 ### Help us out!
 We wish to substantially expand the number of tests, and your
