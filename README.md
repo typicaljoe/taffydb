@@ -5,10 +5,10 @@ into your JavaScript applications.
 
 ## New versions
 
-### 2.8.0
+### 2.x.0
 - Adjusted to pass jslint and employ some best practice
 
-## 2.8.1 - updated regression tests, ported iOS9 fix from
+## 2.x.1 - updated regression tests, ported iOS9 fix from
 - Updated tests to check for regressions
 - Made tests easy to expand
 - Added iOS9 fixes per https://github.com/typicaljoe/taffydb/pull/101/files
@@ -109,6 +109,10 @@ Running the nodeunit suite is simple:
     bin/nodeunit ./nodeunit_suite.js
 
 ### Help us out!
+If you want to help with taffydb development, run the `install_dev.sh`
+script to install development utilities such as jslint, nodeunit, and
+uglifyjs to the `bin` directory.
+
 We wish to substantially expand the number of tests, and your
 help is certainly welcome!  The nodeunit code is quite easy to adjust, so if
 you want to provide a pull request for a change, that would be welcome.
@@ -120,7 +124,6 @@ View more docs and examples, get support, and get notified of updates:
 
 Web: http://taffydb.com
 Twitter: http://twitter.com/biastoact 
-
 
 ## Software License Agreement (BSD License)
 Copyright (c)
