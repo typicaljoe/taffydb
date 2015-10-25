@@ -83,31 +83,38 @@ package:
 The automated regression test file `nodeunit_suite.js` is an excellent
 example.
 
-## Automated regression tests
+## Help improve taffydb
 
-### Purpose
 TaffyDB has been used and refined for years for numerous production tools and
 commercial products.  It is therefore is quite stable and reliable.  However,
 we want expand our regression test coverage so we can easily improve the code
 with the confidence that we are unlikely to break exising capabilities.
 
-### Running the tests
-Running the nodeunit suite is simple:
+### Getting started with development
+
+Run the `install_dev.sh` script to install development utilities such as `jslint`,
+`nodeunit`, and `uglifyjs` to the `bin` directory.
+
+    ./install_dev.sh
+
+
+### Running regression tests
+Running the nodeunit regression test suite is simple:
 
     cd taffydb
-    install_dev.sh # this installs development dependencies
+    ./install_dev.sh # as above
+
     bin/nodeunit ./nodeunit_suite.js
 
-### Help us out!
-If you want to help with taffydb development, run the `install_dev.sh`
-script to install development utilities such as jslint, nodeunit, and
-uglifyjs to the `bin` directory.
+Please do not send a pull request unless your changes have passed these
+tests.  We check, you know :)
 
+### Adding to regression tests
 We wish to substantially expand the number of tests, and your
-help is certainly welcome!  The nodeunit code is quite easy to adjust, so if
-you want to provide a pull request for a change, that would be welcome.
-Alternately, if you just send along the code for a test scenario, we'd be
-happy to include it in the suite.
+help is welcome!  The code, `nodeunit_suite.js`, should be easy to adjust.
+Pull requests that include regression test inclusions are very much
+appreciated.  Alternately, if you just send along a test scenario, we'd be
+happy to include it in the suite, time permitting.
 
 ## Documentation, support, updates
 View more docs and examples, get support, and get notified of updates:
