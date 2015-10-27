@@ -6,21 +6,21 @@ into your JavaScript applications.
 ## Introduction
 
 TaffyDB brings powerful SQL-like database capabilities to JavaScript,
-and can greatly improve the way you manipulate data in your applications.
-It can also greatly reduce development time and improve the speed and 
-quality of your code.
+and can greatly simply data manipulation in web applications.
+It can also greatly reduce development time, improve performance, and 
+enhance quality.
 
-How you ever noticed how JavaScript object literals look a lot like
+Have you ever noticed how JavaScript object literals look a lot like
 records? And that if you wrap a group of them up in an array you have
-something that acts a lot like a database table?  We did too, and 
-TaffyDB provides you with a rich set of tools to manipulate lists of
-objects with a fast, uniform API.
+something that looks a lot like a database table?  We did too. 
+TaffyDB provides you with a rich set of tools to quickly manipulate 
+these 'tables' efficiently with a consistent, SQL-like interface.
 
 ## What makes it sticky
 
  - Extremely fast
- - Powerful JavaScript centric data selection engine
- - Database inspired features such as insert, update, unique, count, etc
+ - Powerful JavaScript-centric data selection engine
+ - SQL inspired features such as insert, update, unique, count, etc.
  - Robust cross browser support
  - Easily extended with your own functions
  - Compatible with any DOM library (jQuery, YUI, Dojo, etc)
@@ -44,7 +44,7 @@ Just pass in a JSON array:
     // where item is equal to 1
     var item1 = products({item:1});
 
-	  // where price is less than 100
+    // where price is less than 100
     var lowPricedItems = products({price:{lt:100}});
 
     // where name is like "Blue Ray"
@@ -78,6 +78,9 @@ Just pass in a JSON array:
 Node is easy to use in Node.JS.  Simply install using `npm` and `require` the
 package:
 
+    $ npm install --production taffy
+    
+    # and then in your code
     TAFFY = require( 'taffy' ).taffy;
 
 The automated regression test file `nodeunit_suite.js` is an excellent
