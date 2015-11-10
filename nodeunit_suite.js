@@ -53,17 +53,19 @@
   testSmoke = function ( test_obj ) {
     var
       friend_db, query_list, query_count, initial_list, expect_map,
-      idx, bit_list, key_name, data_val, expect_str, actual_str, msg_str,
+      idx, bit_list, key_name, val_data, expect_data, actual_str, msg_str,
 
       partial, chain_list, chain_count, i, chain_map
       ;
 
     friend_db = TAFFY( cloneFriendList() );
 
-    initial_list = friend_db().get();
 
-    // Data to to build test function calls like
-    //   friend_db({city: "Seattle, // WA"}).get();
+    // Fast clone; see stackoverflow.com/questions/122102/5344074
+    initial_list = JSON.parse(JSON.stringify(friend_db().get()));
+
+    // query data
+    //
     query_list = [
       [ 'filter_city',      [ { city : "Seattle, WA"}, { key: 'get' } ] ],
       [ 'filter_id_num',    [ { id : 1 }, { key : 'get' }             ] ],
@@ -92,41 +94,44 @@
       [ 'sort_001_002',     [ { _xsort : 'last' }, { key : 'get' }    ] ],
       // should match changed order
       [ 'sort_001_002',     [ null, { key : 'get'}  ] ],
+      [ 'get_ruth',         [ { "last" : "Ruth" }, { key : 'update', val : { first : 'KelBel' } }, { key : 'first' } ] ]
     ];
 
     query_count = query_list.length;
     test_obj.expect( query_count );
 
     expect_map = {
-      filter_city     : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
-      filter_id_num   : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}]',
-      filter_id_str   : '[]',
-      filter_name     : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}]',
-      kelly_by_id     : '{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true}',
-      kelly_last_name : '"Ruth"',
-      id_list         : '[1,2,3,4]',
-      city_list       : '["Seattle, WA","Dallas, TX","Washington, D.C."]',
-      filter_001      : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
-      order_001       :  JSON.stringify( initial_list ),
-      order_002       :  '[{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
-      order_003       : '[{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
-      order_004       :  '[{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
-      order_005       :  '[{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
-      order_006       :  '[{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true}]',
-      order_007       :  '[{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
-      order_008       :  '[{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
-      order_009       :  '[{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}]',
-      order_010       :  JSON.stringify( initial_list ),
-      sort_001_002    :  '[{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}]',
+      filter_city     : [{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}],
+      filter_id_num   : [{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}],
+      filter_id_str   : [],
+      filter_name     : [{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true}],
+      kelly_by_id     : {"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},
+      kelly_last_name : 'Ruth',
+      id_list         : [1,2,3,4],
+      city_list       : ["Seattle, WA","Dallas, TX","Washington, D.C."],
+      filter_001      : [{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}],
+      order_001       :  initial_list,
+      order_002       :  [{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}],
+      order_003       : [{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}],
+      order_004       :  [{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}],
+      order_005       :  [{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}],
+      order_006       :  [{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true}],
+      order_007       :  [{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}],
+      order_008       :  [{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}],
+      order_009       :  [{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true}],
+      order_010       :  initial_list,
+      sort_001_002    :  [{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active","___id":"T000002R000005","___s":true},{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true},{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active","___id":"T000002R000002","___s":true},{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active","___id":"T000002R000004","___s":true}],
+      get_ruth : {"id":2,"gender":"F","first":"KelBel","last":"Ruth","city":"Dallas, TX","status":"Active","___id":"T000002R000003","___s":true}
     };
 
     for ( idx = 0; idx < query_count; idx++ ) {
-      bit_list   = query_list[ idx ];
-      key_name   = bit_list[ 0 ];
-      data_val   = bit_list[ 1 ];
-      expect_str = expect_map[ key_name ] || '';
+      bit_list    = query_list[ idx ];
+      key_name    = bit_list[ 0 ];
+      val_data    = bit_list[ 1 ];
+      expect_data = expect_map[ key_name ] || '';
 
-      chain_list  = data_val;
+
+      chain_list  = val_data;
       chain_count = chain_list.length;
 
       _PARTIAL_:
@@ -160,8 +165,8 @@
       }
 
       actual_str = JSON.stringify( partial );
-      msg_str = actual_str + ' === ' + expect_str;
-      test_obj.equal( actual_str, expect_str, msg_str );
+      msg_str = actual_str + ' === ' + JSON.stringify( expect_data );
+      test_obj.deepEqual( partial, expect_data, msg_str );
     }
     test_obj.done();
   };
