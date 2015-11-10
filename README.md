@@ -72,7 +72,8 @@ Just pass in a JSON array:
 
     // Inject values from a record into a string template.
     // Row value will be set to "<tr><td>3D TV</td><td>17999.99</td></tr>"
-    var row = products({item:2}).supplant("<tr><td>{name}</td><td>{price}</td></tr>");
+    var row = products({item:2})
+      .supplant("<tr><td>{name}</td><td>{price}</td></tr>");
 
 ## Use it in Node.JS
 Node is easy to use in Node.JS.  Simply install using `npm` and `require` the
