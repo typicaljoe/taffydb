@@ -23,6 +23,7 @@
       "email": "mcwhittemore@gmail.com"
     }
   ],
+  "license": "BSD-2-Clause",
   "name": "taffydb",
   "main": "./taffy",
   "description": "TaffyDB is an opensouce library that brings database features into your JavaScript applications.",
