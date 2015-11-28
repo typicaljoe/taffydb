@@ -20,9 +20,12 @@ simplifies maintenance, *and* increases quality.
  - Extremely fast
  - Powerful JavaScript-centric data selection engine
  - SQL inspired features such as insert, update, unique, count, and more
- - Robust cross browser support
+ - Robust cross browser support 
  - Easily extended with your own functions
  - Compatible with any DOM library (jQuery, YUI, Dojo, etc)
+
+TaffyDB is compatible with all modern browsers: IE9+, FF3+, Safari 5+, 
+and Chrome 1.0+.  It also works in NodeJS 0.10+.
 
 ## Create a DB
 Just pass in a JSON array:
