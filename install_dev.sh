@@ -36,6 +36,12 @@ echo
 echo "Done.  Installed utilities are below:"
   ls -1 bin;
 echo
+
+echo "Running regression tests"
+echo
+bin/nodeunit nodeunit_suite.js
+
+echo
 echo "Happy taffydb development!"
 echo
 
