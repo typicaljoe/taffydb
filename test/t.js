@@ -10,7 +10,7 @@
   'use strict';
   // BEGIN module-scope vars
   var
-    TAFFY = require( './taffy' ).taffy,
+    TAFFY = require( '../taffy.js' ).taffy,
 
     // Load libraries
     // Declare data sources

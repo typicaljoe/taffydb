@@ -15,6 +15,9 @@ We use TaffyDB instead of ad-hoc data manipulation routines throughout
 our applications. This reduces development time, improves performance,
 simplifies maintenance, *and* increases quality.
 
+Please see the [official website](http://www.taffydb.com) for more 
+complete documentation.
+
 ## What makes it sticky
 
  - Extremely fast
@@ -30,61 +33,69 @@ and Chrome 1.0+.  It also works in NodeJS 0.10+.
 ## Create a DB
 Just pass in a JSON array:
 
-    var product_db = TAFFY([
-      { "item"  : 1,
-        "name"  : "Blue Ray Player",
-        "price" : 99.99
-      },
-      { "item"  : 2,
-        "name"  : "3D TV",
-        "price" : 1799.99
-      }
-    ]);
+```js
+var product_db = TAFFY([
+  { "item"  : 1,
+    "name"  : "Blue Ray Player",
+    "price" : 99.99
+  },
+  { "item"  : 2,
+    "name"  : "3D TV",
+    "price" : 1799.99
+  }
+]);
+```
 
 ## Example queries
 
-    // where item is equal to 1
-    var item1 = products({item:1});
+```js
+// where item is equal to 1
+var item1 = products({item:1});
 
-    // where price is less than 100
-    var lowPricedItems = products({price:{lt:100}});
+// where price is less than 100
+var lowPricedItems = products({price:{lt:100}});
 
-    // where name is like "Blue Ray"
-    var blueRayPlayers = products({name:{like:"Blue Ray"}});
+// where name is like "Blue Ray"
+var blueRayPlayers = products({name:{like:"Blue Ray"}});
 
-    // get first record
-    products().first();
+// get first record
+products().first();
 
-    // get last record
-    products().last();
+// get last record
+products().last();
+```
 
 ## Example record manipulation
 
-    // update the price of the Blue Ray Player to 89.99
-    products({item:1}).update({price:89.99});
+```js
+// update the price of the Blue Ray Player to 89.99
+products({item:1}).update({price:89.99});
 
-    // loop over the records and call a function
-    products().each(function (r) {alert(r.name)});
+// loop over the records and call a function
+products().each(function (r) {alert(r.name)});
 
-    // sort the records by price descending
-    products.sort("price desc");
+// sort the records by price descending
+products.sort("price desc");
 
-    // select only the item names into an array
-    products().select("name"); // returns ["3D TV","Blue Ray Player"]
+// select only the item names into an array
+products().select("name"); // returns ["3D TV","Blue Ray Player"]
 
-    // Inject values from a record into a string template.
-    // Row value will be set to "<tr><td>3D TV</td><td>17999.99</td></tr>"
-    var row = products({item:2})
-      .supplant("<tr><td>{name}</td><td>{price}</td></tr>");
+// Inject values from a record into a string template.
+// Row value will be set to "<tr><td>3D TV</td><td>17999.99</td></tr>"
+var row = products({item:2})
+  .supplant("<tr><td>{name}</td><td>{price}</td></tr>");
+```
 
 ## Use it in Node.JS
 Node is easy to use in Node.JS.  Simply install using `npm` and `require` the
 package:
 
-    $ npm install --production taffy
-    
-    # and then in your code
-    TAFFY = require( 'taffy' ).taffy;
+```js
+$ npm install --production taffy
+
+# and then in your code
+TAFFY = require( 'taffy' ).taffy;
+```
 
 The automated regression test file `nodeunit_suite.js` is an excellent
 example.
@@ -101,16 +112,20 @@ with the confidence that we are unlikely to break exising capabilities.
 Run the `install_dev.sh` script to install development utilities such as `jslint`,
 `nodeunit`, and `uglifyjs` to the `bin` directory.
 
-    ./install_dev.sh
+```js
+./install_dev.sh
+```
 
 
 ### Running regression tests
 Running the nodeunit regression test suite is simple:
 
-    cd taffydb
-    ./install_dev.sh # as above
+```js
+cd taffydb
+./install_dev.sh # as above
 
-    bin/nodeunit ./nodeunit_suite.js
+bin/nodeunit ./nodeunit_suite.js
+```
 
 Please do not send a pull request unless your changes have passed these
 tests.  We check, you know :)

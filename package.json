@@ -1,43 +1,45 @@
 {
-  "author": {
-    "name": "Ian Smith"
-  },
-  "contributors": [
-    {
-      "name": "Ian Smith"
-    },
-    {
-      "name": "Todd Chambery",
-      "email": "todd.chambery@gmail.com"
-    },
-    {
-      "name": "Daniel Ruf",
-      "email": "kontakt@daniel-ruf.de"
-    },
-    {
-      "name": "Michael Mikowski",
-      "email": "mike.mikowski@gmail.com"
-    },
-    {
-      "name": "Matthew Chase Whittemore",
-      "email": "mcwhittemore@gmail.com"
-    }
-  ],
-  "license": "BSD-2-Clause",
   "name": "taffydb",
-  "main": "./taffy",
+  "version": "2.7.3",
   "description": "TaffyDB is an opensouce library that brings database features into your JavaScript applications.",
-  "version": "2.7.2",
-  "homepage": "http://taffydb.com/",
+  "keywords": [
+    "database", "browser", "json", "collection", "records", "node", "nodejs"
+  ],
+  "main": "taffy.js",
+  "scripts": {
+    "test": "node_modules/.bin/nodeunit test/t.js"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/typicaljoe/taffydb.git"
   },
-  "dependencies": {
+  "author": { "name": "Ian Smith" },
+  "contributors": [
+    { "name": "Ian Smith" },
+    { "name": "Todd Chambery",
+      "email": "todd.chambery@gmail.com"
+    },
+    { "name": "Daniel Ruf",
+      "email": "kontakt@daniel-ruf.de"
+    },
+    { "name": "Michael Mikowski",
+      "email": "mike.mikowski@gmail.com"
+    },
+    { "name": "Matthew Chase Whittemore",
+      "email": "mcwhittemore@gmail.com"
+    }
+  ],
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/typicaljoe/taffydb/issues"
   },
+  "homepage": "http://www.taffydb.com",
+  "dependencies": {},
   "devDependencies": {
     "jslint": "^0.9.3",
     "nodeunit": "^0.9.1",
+    "nodeunit-b": "^4.0.0",
+    "node-inspector" : "^0.12.5",
     "uglifyjs": "^2.4.10"
   }
 }
