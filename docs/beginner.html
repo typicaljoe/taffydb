@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- saved from url=(0023)http://www.taffydb.com/ -->
+<!-- saved from url=(0031)http://www.taffydb.com/beginner -->
 <html lang="en" class="gr__taffydb_com"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
      
-  <title>TaffyDB - The JavaScript Database</title>
+  <title>TaffyDB - Beginner's Guide</title>
   <meta name="description" content="">
   
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -128,9 +128,8 @@
 </form>
               <li class="nav-header">Community and Support</li>
               <li><a href="https://github.com/typicaljoe/taffydb/issues?state=open">Open Issues</a></li>
-              <li><a href="http://tech.groups.yahoo.com/group/taffydb">Discussion List</a></li>
 
-              <li><a href="http://www.taffydb.com/#" onclick="document.getElementById(&#39;paypal&#39;).submit()">Donate</a>
+              <li><a href="http://www.taffydb.com/beginner#" onclick="document.getElementById(&#39;paypal&#39;).submit()">Donate</a>
 </li>
 
 
@@ -149,120 +148,146 @@
           <div class="hero-unit">
 
                
-   <h1>The JavaScript Database</h1>
+            <h1>Beginner's Guide</h1>
             
-            <p>An opensouce library that brings database features into your JavaScript applications.</p>
-            <h2>Introduction</h2>
+            <p>TaffyDB is very easy to get started with. This brief turtoial will introduce you to a few of the core concepts and should be enough to get started even if you aren't already a web developer.</p>
+			
+			<h3>Step 1: Creating a quick sandbox</h3>
+				<p>It is recmmended that you download and use your own copy of TaffyDB, but for the purposes of playing around you can use the latest version right off of GitHub. If you have never created a web page before you can simply create a text document, include the code below, and save it to your desktop as test.html.</p>
+				<pre>&lt;html&gt;
+	&lt;head&gt;
+		&lt;script src="https://github.com/typicaljoe/taffydb/raw/master/taffy.js"&gt;&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;/body&gt;
+				
+&lt;/html&gt;</pre>
+				<p>The script tag imports TaffyDB right onto the page.</p>
 
-<p>How you ever noticed how JavaScript object literals look a lot like records? And that if you wrap a group of them up in an array you have something that looks a lot like a database table? TaffyDB is a libary to bring powerful database funtionality to that concept and rapidly improve the way you work with data inside of JavaScript.</p>
+			<h3>Step 2: Your First DB</h3>
+				<p>Let's create a DB to store some city information. You'll need another script tag and you'll be writing JavaScript.</p>
+				<pre>&lt;html&gt;
+	&lt;head&gt;
+		&lt;script src="https://github.com/typicaljoe/taffydb/raw/master/taffy.js"&gt;&lt;/script&gt;
+		&lt;script&gt;
 
-<h2>What makes it sticky</h2>
+		var cities = TAFFY();
 
-<ul>
-<li>Small file size, extremely fast queries</li>
-<li>Powerful JavaScript centric data selection engine</li>
-<li>Database inspired features such as count, update, and insert</li>
-<li>Robust cross browser support</li>
-<li>Easily extended with your own functions</li>
-<li>Compatible with any DOM library (jQuery, YUI, Dojo, etc)</li>
-<li>Compatible with Server Side JS</li>
-</ul>
-<h2>Create a Database</h2>
-			<pre class="brush: js">// Create DB and fill it with records
-var friends = TAFFY([
-	{"id":1,"gender":"M","first":"John","last":"Smith","city":"Seattle, WA","status":"Active"},
-	{"id":2,"gender":"F","first":"Kelly","last":"Ruth","city":"Dallas, TX","status":"Active"},
-	{"id":3,"gender":"M","first":"Jeff","last":"Stevenson","city":"Washington, D.C.","status":"Active"},
-	{"id":4,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active"}	
-]);
-</pre>
+		&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;/body&gt;
+				
+&lt;/html&gt;</pre>
+			<h3>Step 3: Adding records</h3>
+				<p>You can add records on creation and via the .insert() method. Below we are doing both.</p>
+				<pre>&lt;html&gt;
+	&lt;head&gt;
+		&lt;script src="https://github.com/typicaljoe/taffydb/raw/master/taffy.js"&gt;&lt;/script&gt;
+		&lt;script&gt;
 
-<h2>Filter using the database name and object comparison</h2>
-			<pre class="brush: js">// Find all the friends in Seattle
-friends({city:"Seattle, WA"});
+		var cities = TAFFY([{name:"New York",state:"WA"},{name:"Las Vegas",state:"NV"},{name:"Boston",state:"MA"}]);
+	
+		cities.insert({name:"Portland",state:"OR"});
 
-// Find John Smith, by ID
-friends({id:1});
+		&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;/body&gt;
+				
+&lt;/html&gt;</pre>
+			<h3>Step 4: Your first query</h3>
+				<p>Our city db is itself a function that accepts a filter object (an object that will be matched to records). Let's query for Boston. We will alert the .count() method to see our results.</p>
+				<pre>&lt;html&gt;
+	&lt;head&gt;
+		&lt;script src="https://github.com/typicaljoe/taffydb/raw/master/taffy.js"&gt;&lt;/script&gt;
+		&lt;script&gt;
 
-// Find John Smith, by Name
-friends({first:"John",last:"Smith"});
-</pre>
+		var cities = TAFFY([{name:"New York",state:"WA"},{name:"Las Vegas",state:"NV"},{name:"Boston",state:"MA"}]);
+	
+		cities.insert({name:"Portland",state:"OR"});
 
-<h2>Access data easily</h2>
-			<pre class="brush: js">// Kelly's record
-var kelly = friends({id:2}).first();
+		alert(cities({name:"Boston"}).count());
 
-// Kelly's last name
-var kellyslastname = kelly.last;
+		&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;/body&gt;
+				
+&lt;/html&gt;</pre>
+				
+			<h3>Step 5: Chaining methods</h3>
+				<p>You can chain together. Below we will get the first two records from the DB and use the .each() method to alert their names.</p>
+				<pre>&lt;html&gt;
+	&lt;head&gt;
+		&lt;script src="https://github.com/typicaljoe/taffydb/raw/master/taffy.js"&gt;&lt;/script&gt;
+		&lt;script&gt;
 
-// Get an array of record ids
-var cities = friends().select("id");
+		var cities = TAFFY([{name:"New York",state:"WA"},{name:"Las Vegas",state:"NV"},{name:"Boston",state:"MA"}]);
+	
+		cities.insert({name:"Portland",state:"OR"});
 
-// Get an array of distinct cities
-var cities = friends().distinct("city");
+		cities().limit(2).each(function (r) {alert(r.name)});
 
-// Apply a function to all the male friends
-friends({gender:"M"}).each(function (r) {
-   alert(r.name + "!");
-});
-</pre>
+		&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;/body&gt;
+				
+&lt;/html&gt;</pre>
+				
+			<h3>Step 6: Updating data</h3>
+				<p>You may have noticed that New York is in the wrong state. Let's fix that and alert the new state. </p>
+				<pre>&lt;html&gt;
+	&lt;head&gt;
+		&lt;script src="https://github.com/typicaljoe/taffydb/raw/master/taffy.js"&gt;&lt;/script&gt;
+		&lt;script&gt;
 
-<h2>Modify data on the fly</h2>
-			<pre class="brush: js">// Move John Smith to Las Vegas
-friends({first:"John",last:"Smith"}).update({city:"Las Vegas, NV:"});
+		var cities = TAFFY([{name:"New York",state:"WA"},{name:"Las Vegas",state:"NV"},{name:"Boston",state:"MA"}]);
+	
+		cities.insert({name:"Portland",state:"OR"});
 
-// Remove Jennifer Gill as a friend
-friends({id:4}).remove();
+		cities({name:"New York"}).update({state:"NY"});
 
-// insert a new friend
-friends.insert({"id":5,"gender":"F","first":"Jennifer","last":"Gill","city":"Seattle, WA","status":"Active"});
-</pre>
+		alert(cities({name:"New York"}).first().state);
 
-<p><a class="btn btn-primary btn-large" href="https://github.com/typicaljoe/taffydb/archive/master.zip">Download »</a></p>
 
+		&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;/body&gt;
+				
+&lt;/html&gt;</pre>
+				
+			<h3>Step 7: Sorting</h3>
+				<p>Sorting is a big part of TaffyDB using the .order() method.</p>
+				<pre>&lt;html&gt;
+	&lt;head&gt;
+		&lt;script src="https://github.com/typicaljoe/taffydb/raw/master/taffy.js"&gt;&lt;/script&gt;
+		&lt;script&gt;
+
+		var cities = TAFFY([{name:"New York",state:"WA"},{name:"Las Vegas",state:"NV"},{name:"Boston",state:"MA"}]);
+	
+		cities.insert({name:"Portland",state:"OR"});
+
+		alert(cities().order("name").first().name);
+
+		&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;/body&gt;
+				
+&lt;/html&gt;</pre>
+			<h3>What's next</h3>
+				<p>There are a lot of other methods you can use against your data. Some highlights include .remove() to delete records, .get() to get an array of records, and .supplant to merge records with a string template. Continue to browse the docs for more ways to use TaffyDB.</p>
+				
+		
 
 
           </div>
            <footer>
          
-  <div class="row-fluid">
-            <div class="span4">
-              <h2>Beginner's Guide</h2>
-              <p>A quick intro to getting your first DB up in running from scratch.</p>
-              <p><a class="btn" href="http://www.taffydb.com/beginner">View details »</a></p>
-            </div><!--/span-->
 
-            <div class="span4">
-              <h2>Writing queries</h2>
-              <p>The heart of TaffyDB and any database is running queries against your data. This is done after creation of your database by calling the root function and building Filter Objects.</p>
-              <p><a class="btn" href="http://www.taffydb.com/writingqueries">View details »</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Using and modifying data</h2>
-
-              <p>The basics for ordering, inserting, updating, deleting, and using your data in an application.</p>
-              <p><a class="btn" href="http://www.taffydb.com/workingwithdata">View details »</a></p>
-            </div><!--/span-->
-          </div><!--/row-->
-          <div class="row-fluid">
-            <div class="span4">
-              <h2>Extensions</h2>
-
-              <p>TaffyDB is easy to extend. Write your own plugins or model whole applications with TaffyDB as the backbone.</p>
-              <p><a class="btn" href="http://www.taffydb.com/extensions">View details »</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Discussion List</h2>
-              <p>A great place to get help, suggest ideas, and contribute to the TaffyDB community.</p>
-              <p><a class="btn" href="http://tech.groups.yahoo.com/group/taffydb">View details »</a></p>
-
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Fork It!</h2>
-              <p>Use and modify the library for your own projects and contribute code back to the master library</p>
-              <p><a class="btn" href="https://github.com/typicaljoe/taffydb">View details »</a></p>
-            </div><!--/span-->
-          </div><!--/row-->
 
     </footer>
 

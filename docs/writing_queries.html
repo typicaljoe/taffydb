@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<!-- saved from url=(0037)http://www.taffydb.com/writingqueries -->
+<html lang="en" class="gr__taffydb_com"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+     
+  <title>TaffyDB - Writing queries</title>
+  <meta name="description" content="">
+  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <script id="twitter-wjs" src="./index_files/widgets.js.download"></script><script type="text/javascript" async="" src="./index_files/ga.js.download"></script><script type="text/javascript" src="./index_files/XRegExp.js.download"></script> <!-- XRegExp is bundled with the final shCore.js during build -->
+	<script type="text/javascript" src="./index_files/shCore.js.download"></script>
+	<script type="text/javascript" src="./index_files/shBrushJScript.js.download"></script>
+
+	<link type="text/css" rel="stylesheet" href="./index_files/shCore.css">
+	<link type="text/css" rel="Stylesheet" href="./index_files/shThemeDefault.css">
+	<script type="text/javascript">SyntaxHighlighter.all();</script>
+    <!-- Le styles -->
+
+    <link href="./index_files/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+     .toolbar {
+			opacity:0;
+		}
+
+	 .method {
+
+		}
+		.method td {
+			border-bottom:thin solid silver;
+			border-top:thin solid silver;
+			vertical-align:text-top;
+		}
+		.method td:first-child {
+			color:gray;
+			background-color:#F2EDEF;
+			font-size:160%;
+			text-align:center;
+			vertical-align:middle;
+		}
+		b {
+			background-color:#F2EDEF;
+		}
+    </style>
+    <link href="./index_files/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="http://www.taffydb.com/ico/favicon.ico">
+
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://www.taffydb.com/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://www.taffydb.com/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://www.taffydb.com/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="http://www.taffydb.com/ico/apple-touch-icon-57-precomposed.png">
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-130587-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  <script type="text/javascript" charset="utf-8" async="" src="./index_files/timeline.619317855a58aa2366562a395f9e40ef.js.download"></script></head>
+
+  <body data-gr-c-s-loaded="true">
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">TaffyDB</a>
+          <div class="pull-right">
+            <a class="btn" href="https://github.com/typicaljoe/taffydb">
+            taffy.js
+            </a>
+          </div>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+              <li><a href="https://github.com/typicaljoe/taffydb/archive/master.zip">Download</a></li>
+              <li><a href="/beginner.html">Beginner's Guide</a></li>
+              <li><a href="/writing_queries.html">Writing Queries</a></li>
+              <li><a href="/working_with_data.html">Working With Data</a></li>
+              <li class="active"><a href="extensions.html">Extensions</a></li>
+             </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">On Github</li>
+              <li><a href="https://github.com/typicaljoe/taffydb">GitHub Home</a></li>
+
+              <li><a href="https://github.com/typicaljoe/taffydb/archive/master.zip">Download</a></li>
+              <li><a href="https://github.com/typicaljoe/taffydb/blob/master/taffy.js">Source Code</a></li>
+                           <form id="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="6DDMDBQ45SJAA">
+</form>
+              <li class="nav-header">Community and Support</li>
+              <li><a href="https://github.com/typicaljoe/taffydb/issues?state=open">Open Issues</a></li>
+
+              <li><a href="http://www.taffydb.com/writingqueries#" onclick="document.getElementById(&#39;paypal&#39;).submit()">Donate</a>
+</li>
+
+
+              <li class="nav-header">Created by</li>
+           <iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" class="twitter-timeline twitter-timeline-rendered" style="position: static; visibility: visible; display: inline-block; width: 520px; height: 600px; padding: 0px; border: none; max-width: 100%; min-width: 180px; margin-top: 0px; margin-bottom: 0px; min-height: 200px;" data-widget-id="249607754170368000" title="Twitter Timeline" src="./index_files/saved_resource.html"></iframe>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+            </ul>
+
+
+          </div><!--/.well -->
+
+        </div><!--/span-->
+        <div class="span9">
+          <div class="hero-unit">
+
+               
+                        <h1>Writing queries</h1>
+            
+            <p>The heart of TaffyDB and any database is running queries against your data. This is done after creation of your database by calling the root function and building Filter Objects.</p>
+<pre class="brush: js">// Create a new empty database
+var db = TAFFY();
+
+// Run a query against the DB to return all rows
+db();
+
+// Real world example - remove all records
+db().remove();
+</pre>
+	
+	<h3>Looking up individual records</h3>
+	<p>Every object within a TaffyDB collection has a ___id value set by TaffyDB. This value is not intended for you to know, but is useful when building dynamic applications. This can be used to lookup a record by passing it into the root function as a string.</p>
+<pre class="brush: js">// Looks up a record based on its id
+db("T000008R000002");
+
+// Real world example - update records "status" column
+db("T000008R000002").update({status:"Active"});
+</pre>
+	<p>This also works if you have a copy of the whole record.</p>
+<pre class="brush: js">// get the first record
+var firstRecord = db().first();
+
+// look up this record again
+db(firstRecord);
+
+// Real world example - update records "status" column
+db(firstRecord).update({status:"Active"});
+</pre>
+<h3>Using functions</h3>
+<p>To give you full control over the results of your query you can always pass in a function. Just have it return true if you want the record in your final results.</p>
+<pre class="brush: js">// functional example, returns all records
+db(function () {
+	return true;
+});
+
+
+// Real world example - function returns records with a status of active
+db(function () {
+	return (this.status == "Active") ? true : false;
+});
+</pre>
+	
+
+<h3>Basic queries</h3>
+<p>TaffyDB uses a very JavaScript centric Filter Object for looking up queries. There is no string concatenation and you can quickly compose these by hand or dynamically from within your app. The filter object is compared against each record using some business rules and if it passes the record remains in the results set.</p>
+
+<p>The most common Filter Object is used simply to check if a column is equal to value.</p>
+<pre class="brush: js">// does a match for column and value
+db({column:"value"});
+
+
+// Real world example - records with a status of active
+db({status:"Active"});
+</pre>
+<p>This is the short form of this</p>
+<pre class="brush: js">// does a match for column and value
+db({column:{is:"value"}});
+
+
+// Real world example - records with a status of active
+db({status:{is:"Active"}});
+</pre>
+<p>The "is" part of this expressions can be swapped out for a variety of other comparisons as listed below.</p>
+<h3>Using !(bang)</h3>
+<p>For any comparison operator you can quote it and add a ! sign to reverse the meaning.</p>
+<pre class="brush: js">// does a match for column that is not a value
+db({column:{"!is":"value"}});
+
+// Real world example - records with a status other than of active
+db({status:{"!is":"Active"}});
+</pre>
+<h3>Adding additional filters</h3>
+<p>Using the almighty comma you can add additional lookups to you Filter Object.</p>
+<pre class="brush: js">// does a match for column that is a value and column2 is a value
+db({column:"value",column2:"value"});
+
+// Real world example - records with a status of active and a role of admin
+db({status:"Active",role:"Admin"});
+</pre>
+<p>You can also pass in additional Filter Objects into the function</p>
+<pre class="brush: js">// does a match for column that is a value and column2 is a value
+db({column:"value"},{column2:"value"});
+
+// Real world example - records with a status of active and a role of admin
+db({status:"Active"},{role:"Admin"});
+</pre>
+<h3>Using arrays for IN and OR</h3>
+<p>In a database you can use "in" to pass in a collection of values to compare against. This is possible in TaffyDB via the array.</p>
+<pre class="brush: js">// does a match for column that is one of two values
+db({column:["value","value2"]);
+
+// Real world example - records with a status of active or pending
+db({status:["Active","Pending"]});
+</pre>
+<p>You can also pass in an array of Filter Objects with each one being treated as a logical OR.</p>
+<pre class="brush: js">// does a match for column that is one of two values
+db([{column:"value"},{column:"value2"}]);
+
+// Real world example - records with a status of active or pending
+db([{status:"Active"},{status:"Pending"}]);
+</pre>
+<h3>Bringing it all together</h3>
+<p>A real world example of a complex query.</p>
+<pre class="brush: js">// return records where the role is Admin and the status is Active. 
+// Also return records where the role is Admin, the status is Pending, and the manager_review is true
+
+db({role:"Admin"},[{status:"Active"},{status:"Pending",manager_review:true}]);
+</pre>
+<h3>Comparison Operators</h3>
+<p>In addition to the default "is" operator there are a lot of other operators you can use to lookup records.</p>
+		<table>
+			<tbody><tr class="method">
+				<td>
+					is
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{is:value}}
+				</td>
+				<td>
+					Used to see if a column is of same type and value of supplied value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					==
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{'==':value}}
+				</td>
+				<td>
+					Used to see if a column matches a supplied value using JavaScript's liberal coercion rules. 
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					===
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{'===':value}}
+				</td>
+				<td>
+					Used to see if a column is of same type and value of supplied value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isnocase
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isnocase:value}}
+				</td>
+				<td>
+					Used to see if a column value is equal to a supplied value. Ignores case of column and value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					left
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{left:value}}
+				</td>
+				<td>
+					Used to see if the start of a column is the same as a supplied value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					leftnocase
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{leftnocase:value}}
+				</td>
+				<td>
+					Used to see if the start of a column is the same as a supplied value. Ignores case of column and value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					right
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{right:value}}
+				</td>
+				<td>
+					Used to see if the end of a column is the same as a supplied value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					rightnocase
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{rightnocase:value}}
+				</td>
+				<td>
+					Used to see if the end of a column is the same as a supplied value. Ignores case of column and value
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					like
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{like:value}}
+				</td>
+				<td>
+					Used to see if column contains a supplied value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					likenocase
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{likenocase:value}}
+				</td>
+				<td>
+					Used to see if column contains a supplied value. Ignores case of column and value
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					regex
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{regex:value}}
+				</td>
+				<td>
+					Used to see if column matches a supplied regular expression.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					lt
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{lt:value}} or {column:{'&lt;':value}}
+				</td>
+				<td>
+					Used to see if column is less than a supplied value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					lte
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{lte:value}} or {column:{'&lt;=':value}}
+				</td>
+				<td>
+					Used to see if column is less than or equal to a supplied value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					gt
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{gt:value}} or {column:{'&gt;':value}}
+				</td>
+				<td>
+					Used to see if column is greater than a supplied value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					gte
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{gte:value}}  or {column:{'&gt;=':value}}
+				</td>
+				<td>
+					Used to see if column is greater than or equal to a supplied value.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					has
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{has:value}}
+				</td>
+				<td>
+					Used to see if column that is an object has a value or object appearing in its tree.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					hasAll
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{hasAll:value}}
+				</td>
+				<td>
+					Used to see if column that is an object has a value or object appearing in its tree.
+				</td>
+			</tr>
+			
+			<tr class="method">
+				<td>
+					isSameArray
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isSameArray:value}}
+				</td>
+				<td>
+					Used to see if column is an array and is the same as a supplied array.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isSameObject
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isSameObject:value}}
+				</td>
+				<td>
+					Used to see if column is an object and is the same as a supplied object.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isString
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isString:true}}
+				</td>
+				<td>
+					Used to see if column a string.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isNumber
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isNumber:true}}
+				</td>
+				<td>
+					Used to see if column a number.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isArray
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isArray:true}}
+				</td>
+				<td>
+					Used to see if column an array.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isObject
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isObject:true}}
+				</td>
+				<td>
+					Used to see if column an object.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isFunction
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isFunction:true}}
+				</td>
+				<td>
+					Used to see if column a function.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isBoolean
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isBoolean:true}}
+				</td>
+				<td>
+					Used to see if column a boolean (true/false).
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isNull
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isNull:true}}
+				</td>
+				<td>
+					Used to see if column null.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					isUndefined
+				</td>
+				<td>
+					<b>Example:</b><br>{column:{isUndefined:true}}
+				</td>
+				<td>
+					Used to see if column undefined.
+				</td>
+			</tr>
+		</tbody></table>
+
+
+
+
+            
+
+          </div>
+           <footer>
+         
+
+
+    </footer>
+
+
+        </div><!--/span-->
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <div align="center"><img src="./index_files/taffydbboxV3.jpg"></div>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./index_files/jquery.js.download"></script>
+    <script src="./index_files/bootstrap-transition.js.download"></script>
+    <script src="./index_files/bootstrap-alert.js.download"></script>
+    <script src="./index_files/bootstrap-modal.js.download"></script>
+
+    <script src="./index_files/bootstrap-dropdown.js.download"></script>
+    <script src="./index_files/bootstrap-scrollspy.js.download"></script>
+    <script src="./index_files/bootstrap-tab.js.download"></script>
+    <script src="./index_files/bootstrap-tooltip.js.download"></script>
+    <script src="./index_files/bootstrap-popover.js.download"></script>
+    <script src="./index_files/bootstrap-button.js.download"></script>
+
+    <script src="./index_files/bootstrap-collapse.js.download"></script>
+    <script src="./index_files/bootstrap-carousel.js.download"></script>
+    <script src="./index_files/bootstrap-typeahead.js.download"></script>
+
+  
+
+<iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" title="Twitter analytics iframe" src="./index_files/saved_resource(1).html"></iframe></body></html>

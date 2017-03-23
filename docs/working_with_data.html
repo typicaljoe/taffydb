@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<!-- saved from url=(0038)http://www.taffydb.com/workingwithdata -->
+<html lang="en" class="gr__taffydb_com"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+     
+  <title>TaffyDB - Working with data</title>
+  <meta name="description" content="">
+  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <script id="twitter-wjs" src="./index_files/widgets.js.download"></script><script type="text/javascript" async="" src="./index_files/ga.js.download"></script><script type="text/javascript" src="./index_files/XRegExp.js.download"></script> <!-- XRegExp is bundled with the final shCore.js during build -->
+	<script type="text/javascript" src="./index_files/shCore.js.download"></script>
+	<script type="text/javascript" src="./index_files/shBrushJScript.js.download"></script>
+
+	<link type="text/css" rel="stylesheet" href="./index_files/shCore.css">
+	<link type="text/css" rel="Stylesheet" href="./index_files/shThemeDefault.css">
+	<script type="text/javascript">SyntaxHighlighter.all();</script>
+    <!-- Le styles -->
+
+    <link href="./index_files/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+     .toolbar {
+			opacity:0;
+		}
+
+	 .method {
+
+		}
+		.method td {
+			border-bottom:thin solid silver;
+			border-top:thin solid silver;
+			vertical-align:text-top;
+		}
+		.method td:first-child {
+			color:gray;
+			background-color:#F2EDEF;
+			font-size:160%;
+			text-align:center;
+			vertical-align:middle;
+		}
+		b {
+			background-color:#F2EDEF;
+		}
+    </style>
+    <link href="./index_files/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="http://www.taffydb.com/ico/favicon.ico">
+
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://www.taffydb.com/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://www.taffydb.com/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://www.taffydb.com/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="http://www.taffydb.com/ico/apple-touch-icon-57-precomposed.png">
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-130587-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  <script type="text/javascript" charset="utf-8" async="" src="./index_files/timeline.619317855a58aa2366562a395f9e40ef.js.download"></script></head>
+
+  <body data-gr-c-s-loaded="true">
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">TaffyDB</a>
+          <div class="pull-right">
+            <a class="btn" href="https://github.com/typicaljoe/taffydb">
+            taffy.js
+            </a>
+          </div>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+              <li><a href="https://github.com/typicaljoe/taffydb/archive/master.zip">Download</a></li>
+              <li><a href="/beginner.html">Beginner's Guide</a></li>
+              <li><a href="/writing_queries.html">Writing Queries</a></li>
+              <li><a href="/working_with_data.html">Working With Data</a></li>
+              <li class="active"><a href="extensions.html">Extensions</a></li>
+             </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">On Github</li>
+              <li><a href="https://github.com/typicaljoe/taffydb">GitHub Home</a></li>
+
+              <li><a href="https://github.com/typicaljoe/taffydb/archive/master.zip">Download</a></li>
+              <li><a href="https://github.com/typicaljoe/taffydb/blob/master/taffy.js">Source Code</a></li>
+                           <form id="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="6DDMDBQ45SJAA">
+</form>
+              <li class="nav-header">Community and Support</li>
+              <li><a href="https://github.com/typicaljoe/taffydb/issues?state=open">Open Issues</a></li>
+
+              <li><a href="http://www.taffydb.com/workingwithdata#" onclick="document.getElementById(&#39;paypal&#39;).submit()">Donate</a>
+</li>
+
+
+              <li class="nav-header">Created by</li>
+           <iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" class="twitter-timeline twitter-timeline-rendered" style="position: static; visibility: visible; display: inline-block; width: 520px; height: 600px; padding: 0px; border: none; max-width: 100%; min-width: 180px; margin-top: 0px; margin-bottom: 0px; min-height: 200px;" data-widget-id="249607754170368000" title="Twitter Timeline" src="./index_files/saved_resource.html"></iframe>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+            </ul>
+
+
+          </div><!--/.well -->
+
+        </div><!--/span-->
+        <div class="span9">
+          <div class="hero-unit">
+
+               
+            <h1>Working with data</h1>
+            
+           <h3>Creating your database</h3>
+		<p>You use the global TAFFY function to create a new database.</p>
+<pre class="brush: js">// Create a new empty database
+var db = TAFFY();
+
+// Create a new database a single object (first record)
+var db = TAFFY({record:1,text:"example"})
+
+// Create a new database using an array
+var db = TAFFY([{record:1,text:"example"}])
+
+// Create a new database using a JSON string
+var db = TAFFY('[{"record":1,"text":"example"}]')
+</pre>
+		<h3>DB Queries</h3>
+		<p>Once you have a database you'll be able to call your variable as function. This will setup a query and return a collection of methods to work with the results of that query.</p>
+		<table>
+			<tbody><tr class="method">
+				<td>
+					db()
+				</td>
+				<td>
+					<b>Takes:</b><br>One or more Strings, Records, A Filter Objects, Arrays, or Functions. 
+				</td>
+				<td>
+					<b>Returns:</b><br>A Query Object
+				</td>
+				<td>
+					Used to query the database and return a method collection to start working with the data.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db(); // returns all rows
+</pre>
+				</td>
+			</tr>
+		</tbody></table>
+		<h3>DB Methods</h3>
+		<p>In addition to the query function you have a couple of top level methods to use.</p>
+		<table>
+			<tbody><tr class="method">
+				<td>
+					db.insert()
+				</td>
+				<td>
+					<b>Takes:</b><br> An object or array of objects/json strings to insert.
+					<br>
+					<br>
+					Optional: Call Event override
+					<br> <b>true</b> runs onInsert event (default)
+					<br> <b>false</b> does not onInsert event
+				</td>
+				<td>
+					<b>Returns:</b><br>A query pointing to the inserted records
+				</td>
+				<td>
+					Inserts records into the database.
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db.merge()
+				</td>
+				<td>
+					<b>Takes:</b><br> An object or array of objects/json strings to insert.
+					<br>
+					<br>
+					Optional: Key
+					<br> identity column to be used to match records against the existing db. Default "id". 
+					<br> <b>true</b> runs onInsert for new records and onUpdate for changed records
+					<br>
+					<br>
+					Optional: Call Event override
+					<br> <b>false</b> does not run insert or update event (default)
+					<br> <b>true</b> runs onInsert for new records and onUpdate for changed records
+				</td>
+				<td>
+					<b>Returns:</b><br>A query pointing to the changed or inserted records
+				</td>
+				<td>
+					Inserts or replaces records in an existing db.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db.insert({column:"value"}); // inserts one record
+						
+db.insert({column:"value"},false); // insert but do not call onInsert event</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db.order()
+				</td>
+				<td>
+					<b>Takes:</b><br>A string listing columns to order by separated by commas.<br>
+					Optional: Use asec, desc, logical, and logicaldesc to influencence sort direction.
+				</td>
+				<td>
+					<b>Returns:</b><br>true
+				</td>
+				<td>
+					Sorts the db by column. Note that logical sorting is default.<br>
+					<b>Note:</b> db.sort() is different than db().order() in that sort() changes the order of the records in the database while order() only impacts the order of results returned from a query.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db.order("columnname"); // orders collection by columnname</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db.store()
+				</td>
+				<td>
+					<b>Takes:</b><br>A string with the storage name for the DB<br>
+				</td>
+				<td>
+					<b>Returns:</b><br>true if data was returned from localStorage, false if no data returned
+				</td>
+				<td>
+					Sets up a localStorage collection for a given name. If data exists already the data will be loaded into the collection. Changes are auto synced to localStorage.<br><br>
+					Pass in false to terminate storing the collection (data in localstorage will be unchanged).
+					<br><br>
+					<b>Note:</b> localStorage is not avaliable in all browsers. If localStorage is not found then .store() will be ignored.
+					
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db.store("name"); // starts storing records in local storage</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db.settings()
+				</td>
+				<td>
+					<b>Takes:</b><br>An object.
+				</td>
+				<td>
+					<b>Returns:</b><br>The settings object
+				</td>
+				<td>
+					Used to modify the following settings on each DB:
+					<ul>
+						<li><u>template</u>: this is a template object {} that is merged with each new record as it is added</li>
+						<li><u>forcePropertyCase</u>: (defaults null) Can be "lower" or "higher" and forces properties to a case on insert, update.</li>
+						<li><u>onInsert</u>: function to run on record insert. The <b>this</b> keyword will be the new record.</li>
+						<li><u>onUpdate</u>: function to run on record update. The <b>this</b> keyword will be the new record. Arg 1 will be old record. Arg 2 will be the changes.</li>
+						<li><u>onRemove</u>: function to run on record remove. The <b>this</b> keyword will be the removed record.</li>
+						<li><u>onDBChange</u>: function to run on change to the DB. The <b>this</b> keyword will be the entire DB.</li>
+						<li><u>cacheSize</u>: size of cached query collection. Default to 100. Set to 0 to turn off caching.</li>
+						<li><u>name</u>: string name for the db table to be used at a later date.</li>
+						
+					</ul>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db.settings({template:{show:true}}); // sets the template to have a show value set to true by default on all records
+
+db.settings({onUpdate:function () {alert(this)}}); // sets the onUpdate event
+
+					</pre>
+				</td>
+			</tr>
+		</tbody></table>
+			
+		<h3>Query Object Methods</h3>
+		
+			<p>Any call to data collections root function will return a new query object. The methods below can be used
+		to interact with the data.</p>
+		<table>
+			<tbody><tr class="method">
+				<td>
+					db().update()
+				</td>
+				<td>
+					<b>Takes:</b><br> Any:
+					<br>An object to be merged with the matching objects.
+					<br>A function that will return the modified record for update.
+					<br>Two arguments: a string column name and a value to set the column to
+					<br>
+					<br>
+					Optional Call Event override
+					<br> <b>true</b> runs onUpdate event (default)
+					<br> <b>false</b> does not onUpdate event
+				</td>
+				<td>
+					<b>Returns:</b><br>Query Object
+				</td>
+				<td>
+					Updates the records in the query set.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().update({column:"value"}); // sets column to "value" for all matching records
+
+db().update("column","value"); // sets column to "value" for all matching records
+
+db().update(function () {this.column = "value";return this;}); // sets column to "value" for all matching records
+
+
+db().update({column:"value"},false); // update but do not call onUpdate event</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().remove()
+				</td>
+				<td>
+					<b>Takes:</b><br>
+					<br>
+					Optional Call Event override
+					<br> <b>true</b> runs onUpdate event (default)
+					<br> <b>false</b> does not onUpdate event
+				</td>
+				<td>
+					<b>Returns:</b><br>Count of removed records.
+				</td>
+				<td>
+					Removes records from the database
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().remove(); // removes all matching records from the database
+						
+db().remove(true); // removes but do not call onRemove event</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().filter()
+				</td>
+				<td>
+					<b>Takes:</b><br>One or more Strings, Records, A Filter Objects, Arrays, or Functions. 
+					
+				</td>
+				<td>
+					<b>Returns:</b><br>Query Object
+				</td>
+				<td>
+					See Filtering<br>
+					Applies a sub filter and returns a new Query Object to let you access the results of the filter.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().filter({column:value});
+						
+db().filter({column:value}).count();
+
+collection({column:{gte:value}}).filter({column:{lte:value}}).count();
+					</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().order()
+				</td>
+				<td>
+					<b>Takes:</b><br>A string listing columns to order by separated by commas.<br>
+					Optional: Use asec, desc, logical, and logicaldesc to influence sort direction.
+				</td>
+				<td>
+					<b>Returns:</b><br>Query Object
+				</td>
+				<td>
+					Sorts the query results by column based. Note that logical sorting is default.
+					<b>Note:</b> db.sort() is different than db().order() in that sort() changes the order of the records in the database while order() only impacts the order of results returned from a query.
+			
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().order("col1"); // sorts by col1 using a logical sort
+
+db().order("col1 asec, col2 asec"); // sorts by col1 then col2
+
+db().order("col1 desc"); // sorts by col1 descending
+
+db().order("col1 logicaldesc"); // sorts by col1 using a logical sort descending
+					</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().limit()
+				</td>
+				<td>
+					<b>Takes:</b><br>A number.
+				</td>
+				<td>
+					<b>Returns:</b><br>Query Object
+				</td>
+				<td>
+					Limits the number of results in a query set.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().limit(15); // Limits returned results to first 15</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().start()
+				</td>
+				<td>
+					<b>Takes:</b><br>A number.
+				</td>
+				<td>
+					<b>Returns:</b><br>Query Object
+				</td>
+				<td>
+					Sets the starting record number. Used for offset and paging.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().start(15); // Starts returning results at record 15</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().each()
+				</td>
+				<td>
+					<b>Takes:</b><br>A function.
+				</td>
+				<td>
+					<b>Returns:</b><br>Query Object
+				</td>
+				<td>
+					Runs one or more functions once for every record in the query.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().each(function (record,recordnumber) {
+	alert(record["balance"]);
+}); // alerts the value of the balance column for each record</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().map()
+				</td>
+				<td>
+					<b>Takes:</b><br>A function.
+				</td>
+				<td>
+					<b>Returns:</b><br>An array of results from your function being run against the records in the query.
+				</td>
+				<td>
+					Runs your function against each record in the query and returns the results as an array.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().map(function (record,recordnumber) {
+	return record.balance*0.2;
+}); // returns an array of numbers that are each 20% of the actual balance for each record</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().callback()
+				</td>
+				<td>
+					<b>Takes:</b><br>A function and an (optional) delay.
+				</td>
+				<td>
+					
+				</td>
+				<td>
+Used for lazy query execution and to prevent blocking. Provided function will be called with current Quote Object after query has run in a setTimeout block.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().callback(function () {
+    alert(this.count()); // alert count of matching records					
+});</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().get()
+				</td>
+				<td>
+					
+				</td>
+				<td>
+					<b>Returns:</b><br>An array of all matching records.
+				</td>
+				<td>
+					Prefered method for extracting data. Returns an array of matching records. Also used for exporting records form the database.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().get(); // returns an array of all matching records</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().stringify()
+				</td>
+				<td>
+					
+				</td>
+				<td>
+					<b>Returns:</b><br>A JSON representation of an array of all matching records.
+				</td>
+				<td>
+					Used for exporting data as JSON text. Returns a JSON array filled with JSON objects for each record.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().stringify(); // returns a JSON array of all matching records</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().first()
+				</td>
+				<td>
+					
+				</td>
+				<td>
+					<b>Returns:</b><br>A single record.
+				</td>
+				<td>
+					Returns the first record in a record set.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().first(); // returns the first record out of all matching records.</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().last()
+				</td>
+				<td>
+					
+				</td>
+				<td>
+					<b>Returns:</b><br>A single record.
+				</td>
+				<td>
+					Returns the last record in a record set.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().last(); // returns the last record out of all matching records.</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().sum()
+				</td>
+				<td>
+					<b>Takes:</b><br>One or more column names.
+				</td>
+				<td>
+					<b>Returns:</b><br>A number.
+				</td>
+				<td>
+					Returns the sum total of the column or columns passed into it.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().last("balance"); // returns the sum of the "balance" column.</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().min()
+				</td>
+				<td>
+					<b>Takes:</b><br>Column name.
+				</td>
+				<td>
+					<b>Returns:</b><br>A number or value.
+				</td>
+				<td>
+					Returns the min value for the column passed in.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().min("balance"); // returns the lowest value of the "balance" column.</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().max()
+				</td>
+				<td>
+					<b>Takes:</b><br>Column name.
+				</td>
+				<td>
+					<b>Returns:</b><br>A number or value.
+				</td>
+				<td>
+					Returns the max value for the column passed in.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().max("balance"); 
+// returns the highest value of the "balance" column.</pre>
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().select()
+				</td>
+				<td>
+					<b>Takes:</b><br>One or more column names.
+				</td>
+				<td>
+					<b>Returns:</b><br>For one column: An array of values.<br>
+					For two or more columns: An array of arrays of values.
+				</td>
+				<td>
+					Used to select columns out the database. Pass in column names to get back an array of values. 
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().select("charges","credits","balance"); 
+// returns an array of arrays in this format [[-24,20,-4]]
+
+db().select("balance"); 
+// returns an array of values in this format [-4,6,7,10]
+					</pre>
+					
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().distinct()
+				</td>
+				<td>
+					<b>Takes:</b><br>One or more column names.
+				</td>
+				<td>
+					<b>Returns:</b><br>For one column: An array of values.<br>
+					For two or more columns: An array of arrays of values.
+				</td>
+				<td>
+					Used to select distinct values from the database for one or more columns. Pass in column names to get back an array of distinct values.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().distinct("title","gender"); 
+// returns an array of arrays in this format [["Mr.","Male"],["Ms.","Female"]]
+
+db().distinct("title"); 
+// returns an array of values in this format ["Mr.","Ms.","Mrs."]</pre>
+
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().supplant()
+				</td>
+				<td>
+					<b>Takes:</b><br>A string template.<br>
+					Optional return array flag.
+				</td>
+				<td>
+					<b>Returns:</b><br>Defaults to a string. If return array flag is true then an array of strings with an entry for each record.
+				</td>
+				<td>
+					Used to merge records with a template formated with {key} values to be replaced with real values from the records.
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<pre class="brush: js">db().supplant("&lt;tr&gt;&lt;td&gt;{balance}&lt;/td&gt;&lt;/tr&gt;"); 
+// returns a string in this format "&lt;tr&gt;&lt;td&gt;-4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;6&lt;/td&gt;&lt;/tr&gt;"
+
+db().supplant("&lt;tr&gt;&lt;td&gt;{balance}&lt;/td&gt;&lt;/tr&gt;",true); 
+// returns an array of strings format ["&lt;tr&gt;&lt;td&gt;-4&lt;/td&gt;&lt;/tr&gt;","&lt;tr&gt;&lt;td&gt;6&lt;/td&gt;&lt;/tr&gt;"]
+</pre>
+					
+				</td>
+			</tr>
+			<tr class="method">
+				<td>
+					db().join()
+				</td>
+				<td>
+					<b>Takes:</b><br>1. A second db or reference to a db query.<br>
+					2. One or more functions to be used as join conditions or<br>
+					An an array of one or more join conditions<br>
+					
+				</td>
+				<td>
+					<b>Returns:</b><br>A db query object containing the joined rows.
+				</td>
+				<td>
+					Used to join two dbs and/or queries together and produce a hybrid query containing the joined data.<br><br>
+					[EXPERIMENTAL FEATURE]
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+				 
+					<pre class="brush: js">// City DB
+city_db = TAFFY([
+  {name:'New York',state:'NY'},
+  {name:'Las Vegas',state:'NV'},
+  {name:'Boston',state:'MA'}
+]);
+
+// State DB
+state_db = TAFFY([
+  {name: 'New York', abbreviation: 'NY'},
+  {name: 'Nevada', abbreviation: 'NV'},
+  {name: 'Massachusetts', abbreviation: 'MA'}
+]);
+
+// Conditional Join
+city_db()
+  .join( state_db, [ 'state', 'abbreviation' ]);
+
+// Conditional Join with optional ===
+city_db()
+  .join( state_db, [ 'state', '===', 'abbreviation' ]);
+  
+// Conditional Join using function
+city_db()
+  .join( state_db, function (l, r) {
+      return (l.state === r.abbreviation);
+    });
+</pre>
+					
+				</td>
+			</tr>
+		</tbody></table>
+            
+
+          </div>
+           <footer>
+         
+
+
+    </footer>
+
+
+        </div><!--/span-->
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <div align="center"><img src="./index_files/taffydbboxV3.jpg"></div>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./index_files/jquery.js.download"></script>
+    <script src="./index_files/bootstrap-transition.js.download"></script>
+    <script src="./index_files/bootstrap-alert.js.download"></script>
+    <script src="./index_files/bootstrap-modal.js.download"></script>
+
+    <script src="./index_files/bootstrap-dropdown.js.download"></script>
+    <script src="./index_files/bootstrap-scrollspy.js.download"></script>
+    <script src="./index_files/bootstrap-tab.js.download"></script>
+    <script src="./index_files/bootstrap-tooltip.js.download"></script>
+    <script src="./index_files/bootstrap-popover.js.download"></script>
+    <script src="./index_files/bootstrap-button.js.download"></script>
+
+    <script src="./index_files/bootstrap-collapse.js.download"></script>
+    <script src="./index_files/bootstrap-carousel.js.download"></script>
+    <script src="./index_files/bootstrap-typeahead.js.download"></script>
+
+  
+
+<iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" title="Twitter analytics iframe" src="./index_files/saved_resource(1).html"></iframe></body></html>
