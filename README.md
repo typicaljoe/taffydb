@@ -87,7 +87,7 @@ var row = products({item:2})
 ```
 
 ## Use it in Node.JS
-Node is easy to use in Node.JS.  Simply install using `npm` and `require` the
+TaffyDB is easy to use in Node.JS.  Simply install using `npm` and `require` the
 package:
 
 ```js
