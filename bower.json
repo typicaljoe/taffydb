@@ -1,0 +1,25 @@
+{
+  "name": "taffydb",
+  "version": "2.7.2",
+  "homepage": "http://taffydb.com/",
+  "authors": [
+    "Ian Smith",
+    "Todd Chambery <todd.chambery@gmail.com>",
+    "Daniel Ruf <kontakt@daniel-ruf.de>",
+    "Michael Mikowski <mmikowski@snaplogic.com>",
+    "Matthew Chase Whittemore <mcwhittemore@gmail.com>"
+  ],
+  "description": "TaffyDB is an opensource library that brings database features into your JavaScript applications.",
+  "main": "taffy.js",
+  "keywords": [
+    "database"
+  ],
+  "license": "BSD",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
