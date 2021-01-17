@@ -35,7 +35,7 @@ var TAFFY, exports, T;
     isIndexable,  returnFilter, runFilters,
     numcharsplit, orderByCol,   run,    intersection,
     filter,       makeCid,      safeForJson,
-    isRegexp, sortArgs
+    isRegexp, sortArgs, safeForJsonRecursive
     ;
     
     
@@ -90,12 +90,22 @@ var TAFFY, exports, T;
     isRegexp = function(aObj) {
         return Object.prototype.toString.call(aObj)==='[object RegExp]';
     }
-    
+
     safeForJson = function(aObj) {
+        return safeForJsonRecursive(aObj, []);
+    }
+
+    safeForJsonRecursive = function(aObj, aPrevious) {
+        for (var i in aPrevious) {
+          if (aPrevious[i]===aObj) {
+            return null;
+          }
+        }
+        aPrevious.push(aObj);
         var myResult = T.isArray(aObj) ? [] : T.isObject(aObj) ? {} : null;
         if(aObj===null) return aObj;
         for(var i in aObj) {
-            myResult[i]  = isRegexp(aObj[i]) ? aObj[i].toString() : T.isArray(aObj[i]) || T.isObject(aObj[i]) ? safeForJson(aObj[i]) : aObj[i];
+            myResult[i]  = isRegexp(aObj[i]) ? aObj[i].toString() : T.isArray(aObj[i]) || T.isObject(aObj[i]) ? safeForJsonRecursive(aObj[i], aPrevious) : aObj[i];
         }
         return myResult;
     }
