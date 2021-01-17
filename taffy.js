@@ -1782,6 +1782,8 @@ var TAFFY, exports, T;
 
       var re = false, n;
 
+        if (var1===null) return false;
+
       if ( (var1.TAFFY) ){
         re = var1( var2 );
         if ( re.length > 0 ){
