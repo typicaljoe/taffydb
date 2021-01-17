@@ -1782,7 +1782,7 @@ var TAFFY, exports, T;
 
       var re = false, n;
 
-      if ( (var1.TAFFY) ){
+      if ( undefined !== var1 && (var1.TAFFY) ){
         re = var1( var2 );
         if ( re.length > 0 ){
           return true;
