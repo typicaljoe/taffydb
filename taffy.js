@@ -1283,8 +1283,7 @@ var TAFFY, exports, T;
           }
           if ( settings.storageName ){
             setTimeout( function () {
-              localStorage.setItem( 'taffy_' + settings.storageName,
-                JSON.stringify( TOb ) );
+              try { localStorage.setItem( 'taffy_' + settings.storageName, JSON.stringify( TOb ) ); } catch(Exception) {}
             });
           }
           return dm;
