@@ -1389,6 +1389,18 @@ var TAFFY, exports, T;
             if ( TAFFY.isUndefined( or[i] ) || or[i] !== v ){
               tc[i] = v;
               hasChange = true;
+            }else if ( T.isArray(or[i] ) ){
+              //compare array
+              if(T.isSameArray(or[i], v)){
+                tc[i] = v;
+                hasChange = true;
+              }
+            }else if ( T.isObject(or[i] ) ){
+              //compare object
+              if(T.isSameObject(or[i], v)){
+                tc[i] = v;
+                hasChange = true;
+              }
             }
           });
           if ( hasChange ){
