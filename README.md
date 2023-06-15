@@ -141,7 +141,6 @@ happy to include it in the suite, time permitting.
 View more docs and examples, get support, and get notified of updates:
 
 Web: http://taffydb.com
-Twitter: http://twitter.com/biastoact 
 
 ## Software License Agreement (BSD License)
 Copyright (c)
