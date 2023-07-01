@@ -326,6 +326,8 @@ var TAFFY, exports, T;
                   ;
 
                 if (typeof mvalue === 'undefined') {
+                  // Special-case the isUndefined test here.
+                  if (s === 'isUndefined') return mtest ? true : false;
                   return false;
                 }
                 
